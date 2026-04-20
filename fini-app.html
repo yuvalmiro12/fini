@@ -1,0 +1,1221 @@
+<\!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>פיני — עוזר כספי</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #2a2520;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Rubik', system-ui, sans-serif;
+    }
+    .phone {
+      width: 390px;
+      height: 844px;
+      border-radius: 48px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 60px 120px rgba(0,0,0,0.4), 0 0 0 10px #1F1A15;
+    }
+    @media (max-width: 440px) {
+      .phone { border-radius: 0; width: 100vw; height: 100vh; }
+      body { background: #FDDDE8; }
+    }
+    input, button { font-family: 'Rubik', system-ui, sans-serif; }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
+
+const F = {
+  cream: '#F7F5E8', creamDark: '#EFEADA',
+  ink: '#1F1A15', inkSoft: '#4A4237', inkMute: '#8A8070',
+  line: 'rgba(31,26,21,0.08)', lineSoft: 'rgba(31,26,21,0.05)',
+  rose: '#FDDDE8', roseDeep: '#F9C6D7', pink: '#C85A8A', pinkSoft: '#E89AB3',
+  mint: '#D6EEE0', mintDeep: '#BEE3CB', green: '#5B8E6F', greenSoft: '#A7C9B4',
+  lavender: '#E8ECFF', lavenderDeep: '#D4DBFA', blue: '#5A6FB8', blueSoft: '#A5B0D8',
+  income: '#5B8E6F', incomeTint: '#DDEEDF',
+  expense: '#D47070', expenseTint: '#FADEDC',
+  gold: '#C9A24D', goldTint: '#F3E7C7',
+  font: "'Rubik', system-ui, sans-serif",
+};
+
+const CATS = {
+  food:      { label: 'מסעדות', icon: 'coffee',  tint: '#FCE6D4', ink: '#B5662E' },
+  grocery:   { label: 'סופר',   icon: 'cart',    tint: '#E3EEDB', ink: '#5E8040' },
+  rent:      { label: 'שכירות', icon: 'home',    tint: '#E5E2F5', ink: '#5A4E9A' },
+  transport: { label: 'תחבורה', icon: 'car',     tint: '#DCE9F2', ink: '#4A7390' },
+  utility:   { label: 'חשבונות',icon: 'bolt',    tint: '#F6E6C1', ink: '#9B7C2E' },
+  salary:    { label: 'משכורת', icon: 'wallet',  tint: '#DDEEDF', ink: '#3E7354' },
+  gift:      { label: 'מתנות',  icon: 'gift',    tint: '#F9DEE8', ink: '#A3446A' },
+  phone:     { label: 'סלולר',  icon: 'phone',   tint: '#E4E9FA', ink: '#4A5BA4' },
+  fun:       { label: 'בילויים',icon: 'heart',   tint: '#FCE1EC', ink: '#AF4775' },
+  save:      { label: 'חיסכון', icon: 'piggy',   tint: '#F3E7C7', ink: '#8A6E2C' },
+};
+
+const TXS = [
+  { g: 'היום · 14 בנובמבר', items: [
+    { cat:'food', t:'לחמים', s:'08:12 · כרטיס אשראי', a:-68 },
+    { cat:'salary', t:'משכורת · סטארטאפ', s:'07:30 · העברה', a:12400 },
+  ]},
+  { g: 'אתמול', items: [
+    { cat:'grocery', t:'שופרסל דיל', s:'מכולת', a:-214 },
+    { cat:'transport', t:'Gett', s:'תחבורה · ×3', a:-82 },
+    { cat:'fun', t:'סינמה סיטי', s:'בילוי', a:-96 },
+  ]},
+  { g: '12 בנובמבר', items: [
+    { cat:'rent', t:'שכר דירה · נובמבר', s:'הוראת קבע', a:-3200 },
+    { cat:'phone', t:'Bezeq', s:'אינטרנט', a:-99, flag:'זוהה כחדש' },
+    { cat:'utility', t:'חברת חשמל', s:'חשבונות', a:-288 },
+  ]},
+];
+
+function Icon({ name, size=24, color=F.ink, style={} }) {
+  const s = { width: size, height: size, ...style };
+  const p = { stroke: color, strokeWidth: '1.6', fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' };
+  const icons = {
+    chat:     <path {...p} d="M5 10c0-3 2.5-5 7-5s7 2 7 5-2.5 5-7 5c-1 0-2-.1-2.8-.3L5 17l.8-3.2C5.3 12.9 5 11.5 5 10z"/>,
+    insights: <path {...p} d="M5 19V9M12 19V5M19 19v-7"/>,
+    data:     <>{<rect {...p} x="4" y="4" width="7" height="7" rx="1.5"/>}{<rect {...p} x="13" y="4" width="7" height="4" rx="1.5"/>}{<rect {...p} x="13" y="10" width="7" height="10" rx="1.5"/>}{<rect {...p} x="4" y="13" width="7" height="7" rx="1.5"/>}</>,
+    add:      <>{<circle {...p} cx="12" cy="12" r="8"/>}{<path {...p} d="M12 8v8M8 12h8"/>}</>,
+    camera:   <>{<path {...p} d="M4 8h3l2-2h6l2 2h3v10H4z"/>}{<circle {...p} cx="12" cy="13" r="3"/>}</>,
+    mic:      <>{<rect {...p} x="9.5" y="4" width="5" height="10" rx="2.5"/>}{<path {...p} d="M6 11a6 6 0 0012 0M12 17v3"/>}</>,
+    plus:     <path {...p} d="M12 5v14M5 12h14"/>,
+    arrow:    <path {...p} d="M5 12h14M13 6l6 6-6 6"/>,
+    arrowL:   <path {...p} d="M19 12H5M11 6l-6 6 6 6"/>,
+    send:     <path {...p} d="M20 4L4 11l7 2 2 7z"/>,
+    filter:   <path {...p} d="M4 5h16M7 12h10M10 19h4"/>,
+    search:   <>{<circle {...p} cx="11" cy="11" r="6"/>}{<path {...p} d="M20 20l-4.5-4.5"/>}</>,
+    bell:     <>{<path {...p} d="M6 15V10a6 6 0 0112 0v5l1.5 2H4.5z"/>}{<path {...p} d="M10 19a2 2 0 004 0"/>}</>,
+    wallet:   <>{<rect {...p} x="3" y="6" width="18" height="13" rx="2.5"/>}{<path {...p} d="M3 10h18M16 14.5h2"/>}</>,
+    target:   <>{<circle {...p} cx="12" cy="12" r="8"/>}{<circle {...p} cx="12" cy="12" r="4"/>}{<circle cx="12" cy="12" r="1" fill={color}/>}</>,
+    sparkle:  <path {...p} d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/>,
+    receipt:  <path {...p} d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21zM9 8h6M9 12h6M9 16h4"/>,
+    heart:    <path {...p} d="M12 20s-7-4.5-7-10a4 4 0 017-2.5A4 4 0 0119 10c0 5.5-7 10-7 10z"/>,
+    home:     <path {...p} d="M4 11l8-7 8 7v9a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1z"/>,
+    coffee:   <>{<path {...p} d="M5 9h13v6a4 4 0 01-4 4H9a4 4 0 01-4-4zM18 10h2a2 2 0 010 4h-2"/>}{<path {...p} d="M8 4v2M12 4v2"/>}</>,
+    cart:     <path {...p} d="M3 4h2l2.5 11h11L21 8H6M9 20a1 1 0 100-2 1 1 0 000 2zM18 20a1 1 0 100-2 1 1 0 000 2z"/>,
+    car:      <path {...p} d="M5 14l1.5-5h11L19 14M3 14h18v4h-2v-1H5v1H3zM7 18a1 1 0 100-2 1 1 0 000 2zM17 18a1 1 0 100-2 1 1 0 000 2z"/>,
+    bolt:     <path {...p} d="M13 3L5 14h6l-1 7 8-11h-6z"/>,
+    gift:     <>{<rect {...p} x="3" y="9" width="18" height="11" rx="1"/>}{<path {...p} d="M3 13h18M12 9v11M8 9a2.5 2.5 0 010-5c2 0 4 2.5 4 5M16 9a2.5 2.5 0 000-5c-2 0-4 2.5-4 5"/>}</>,
+    phone:    <>{<rect {...p} x="7" y="3" width="10" height="18" rx="2"/>}{<path {...p} d="M11 18h2"/>}</>,
+    lock:     <>{<rect {...p} x="5" y="10" width="14" height="10" rx="2"/>}{<path {...p} d="M8 10V7a4 4 0 018 0v3"/>}</>,
+    check:    <path {...p} d="M5 12l4 4 10-10"/>,
+    close:    <path {...p} d="M6 6l12 12M18 6L6 18"/>,
+    dots:     <><circle cx="6" cy="12" r="1.5" fill={color}/><circle cx="12" cy="12" r="1.5" fill={color}/><circle cx="18" cy="12" r="1.5" fill={color}/></>,
+    calendar: <>{<rect {...p} x="4" y="5" width="16" height="15" rx="2"/>}{<path {...p} d="M4 10h16M8 3v4M16 3v4"/>}</>,
+    trend:    <path {...p} d="M3 17l5-5 4 4 7-9M16 7h4v4"/>,
+    piggy:    <>{<path {...p} d="M5 13c0-3.5 3-6 7-6 1 0 2 .1 3 .4L17 6l1 2c1.5 1 2 2.5 2 4 0 2-1 3.5-2.5 4.5L17 20h-3l-.5-1.5h-3L10 20H7l-1-3C5.5 16.3 5 14.8 5 13z"/>}{<circle cx="9" cy="12" r=".8" fill={color}/>}{<path {...p} d="M14 10h2"/>}</>,
+    users:    <>{<circle {...p} cx="9" cy="8" r="3.5"/>}{<path {...p} d="M3 20v-1a5 5 0 015-5h2a5 5 0 015 5v1"/>}{<circle {...p} cx="17" cy="9" r="2.5"/>}{<path {...p} d="M15 14h1a5 5 0 015 5v1"/>}</>,
+    tag:      <>{<path {...p} d="M3 12V4h8l10 10-8 8z"/>}{<circle {...p} cx="8" cy="8" r="1.5"/>}</>,
+  };
+  return <svg viewBox="0 0 24 24" style={s}>{icons[name] || null}</svg>;
+}
+
+function FiniMascot({ size=96, mood='happy', style={} }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" style={style}>
+      <defs>
+        <radialGradient id="finiBody" cx="40%" cy="35%" r="70%">
+          <stop offset="0%" stopColor="#F7D98A"/>
+          <stop offset="60%" stopColor="#E8B862"/>
+          <stop offset="100%" stopColor="#C9A24D"/>
+        </radialGradient>
+        <radialGradient id="finiCheek" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#F5A0B8" stopOpacity="0.6"/>
+          <stop offset="100%" stopColor="#F5A0B8" stopOpacity="0"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="60" cy="108" rx="28" ry="4" fill="#1F1A15" opacity="0.08"/>
+      <circle cx="60" cy="58" r="44" fill="url(#finiBody)"/>
+      <circle cx="60" cy="58" r="38" fill="none" stroke="#FFFFFF" strokeOpacity="0.35" strokeWidth="1.2" strokeDasharray="2 3"/>
+      <circle cx="40" cy="66" r="8" fill="url(#finiCheek)"/>
+      <circle cx="80" cy="66" r="8" fill="url(#finiCheek)"/>
+      {mood === 'wink'
+        ? <path d="M 45.5 54 Q 48 52 50.5 54" stroke="#1F1A15" strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+        : <circle cx="48" cy="54" r="2.2" fill="#1F1A15"/>}
+      <circle cx="72" cy="54" r="2.2" fill="#1F1A15"/>
+      {mood === 'talk'
+        ? <ellipse cx="60" cy="70" rx="4" ry="3" fill="#1F1A15"/>
+        : <path d="M 52 68 Q 60 76 68 68" stroke="#1F1A15" strokeWidth="2.2" fill="none" strokeLinecap="round"/>}
+      <path d="M60 18 L60 10" stroke="#C9A24D" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M60 10 L57 5 M60 10 L63 5 M60 10 L60 2" stroke="#C9A24D" strokeWidth="1.6" strokeLinecap="round"/>
+      <circle cx="60" cy="1" r="2" fill="#F7D98A"/>
+      {mood === 'wave' && <g transform="translate(100,50) rotate(20)"><circle r="7" fill="url(#finiBody)"/></g>}
+    </svg>
+  );
+}
+
+function FiniAvatar({ size=36, mood='happy' }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: '50%',
+      background: 'linear-gradient(135deg, #F7D98A, #C9A24D)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      boxShadow: '0 2px 6px rgba(201,162,77,0.3), inset 0 1px 0 rgba(255,255,255,0.5)',
+      flexShrink: 0,
+    }}>
+      <svg width={size*0.72} height={size*0.72} viewBox="0 0 100 100">
+        <circle cx="38" cy="45" r="4" fill="#1F1A15"/>
+        <circle cx="62" cy="45" r="4" fill="#1F1A15"/>
+        {mood === 'talk'
+          ? <ellipse cx="50" cy="62" rx="4" ry="3" fill="#1F1A15"/>
+          : <path d="M 40 60 Q 50 70 60 60" stroke="#1F1A15" strokeWidth="2.6" fill="none" strokeLinecap="round"/>}
+        <path d="M78 14 L78 8 M75 11 L81 11" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    </div>
+  );
+}
+
+function CatIcon({ cat, size=40, radius=12 }) {
+  const c = CATS[cat] || CATS.food;
+  return (
+    <div style={{ width:size, height:size, borderRadius:radius, background:c.tint, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+      <Icon name={c.icon} size={size*0.55} color={c.ink}/>
+    </div>
+  );
+}
+
+function StatusBar({ color=F.ink }) {
+  return (
+    <div style={{ height:54, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'18px 28px 0', boxSizing:'border-box', position:'relative', zIndex:5, direction:'ltr' }}>
+      <span style={{ fontWeight:600, fontSize:17, color }}>9:41</span>
+      <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+        <svg width="18" height="11" viewBox="0 0 18 11">
+          <rect x="0" y="7" width="3" height="4" rx="0.5" fill={color}/>
+          <rect x="5" y="5" width="3" height="6" rx="0.5" fill={color}/>
+          <rect x="10" y="2" width="3" height="9" rx="0.5" fill={color}/>
+          <rect x="15" y="0" width="3" height="11" rx="0.5" fill={color}/>
+        </svg>
+        <svg width="24" height="11" viewBox="0 0 24 11">
+          <rect x="0.5" y="0.5" width="20" height="10" rx="3" stroke={color} strokeOpacity="0.4" fill="none"/>
+          <rect x="2" y="2" width="17" height="7" rx="1.5" fill={color}/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+function TabBar({ active='chat', onTab }) {
+  const tabs = [
+    { id:'data',     label:'נתונים', icon:'data'    },
+    { id:'insights', label:'תובנות', icon:'insights' },
+    { id:'chat',     label:'צ׳אט',   icon:'chat'    },
+  ];
+  const accents = { chat: F.pink, insights: F.green, data: F.blue };
+  const accent = accents[active];
+  return (
+    <div style={{ position:'absolute', left:0, right:0, bottom:0, zIndex:10, paddingBottom:28, paddingTop:10, background:'linear-gradient(to top, rgba(255,255,255,0.96) 60%, rgba(255,255,255,0))', backdropFilter:'blur(10px)' }}>
+      <div style={{ display:'flex', justifyContent:'space-around', padding:'8px 16px' }}>
+        {tabs.map(t => {
+          const on = t.id === active;
+          return (
+            <div key={t.id} onClick={() => onTab && onTab(t.id)} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:2, minWidth:56, cursor:'pointer' }}>
+              <div style={{ width:48, height:32, borderRadius:16, background: on ? accent : 'transparent', display:'flex', alignItems:'center', justifyContent:'center', transition:'all 0.2s' }}>
+                <Icon name={t.icon} size={22} color={on ? '#fff' : F.inkMute}/>
+              </div>
+              <span style={{ fontSize:11, fontWeight:on?600:400, color: on ? F.ink : F.inkMute }}>{t.label}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ position:'absolute', bottom:8, left:'50%', transform:'translateX(-50%)', width:139, height:5, borderRadius:100, background:'rgba(31,26,21,0.2)' }}/>
+    </div>
+  );
+}
+
+function ProgressDots({ i, n=5, color=F.pink }) {
+  return (
+    <div style={{ display:'flex', gap:6, justifyContent:'center', padding:'10px 0' }}>
+      {Array.from({length:n}).map((_,k) => (
+        <div key={k} style={{ width:k===i?22:6, height:6, borderRadius:3, background: k<=i ? color : 'rgba(31,26,21,0.12)', transition:'all 0.3s' }}/>
+      ))}
+    </div>
+  );
+}
+
+function ObHeader({ step='2/5', onBack, onSkip }) {
+  return (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 20px', direction:'rtl' }}>
+      <button onClick={onBack} style={{ width:40, height:40, borderRadius:20, border:'none', background:'rgba(31,26,21,0.08)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <Icon name="arrowL" size={20} color={F.inkSoft}/>
+      </button>
+      <button onClick={onSkip} style={{ border:'none', background:'none', cursor:'pointer', fontSize:14, color:F.inkMute, fontFamily:F.font }}>
+        {step} · דילוג
+      </button>
+    </div>
+  );
+}
+
+function FiniBubble({ text, mood='happy' }) {
+  return (
+    <div style={{ display:'flex', alignItems:'flex-end', gap:8, padding:'0 20px 8px', direction:'rtl' }}>
+      <FiniAvatar size={36} mood={mood}/>
+      <div style={{ background:'#fff', borderRadius:'18px 18px 18px 4px', padding:'10px 14px', maxWidth:260, boxShadow:'0 2px 8px rgba(31,26,21,0.08)' }}>
+        <span style={{ fontSize:14, color:F.ink, lineHeight:1.5 }}>{text}</span>
+      </div>
+    </div>
+  );
+}
+
+// ==================== ONBOARDING WELCOME ====================
+function ObWelcome({ nav }) {
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.rose, position:'relative', overflow:'hidden', display:'flex', flexDirection:'column', alignItems:'center', fontFamily:F.font, direction:'rtl' }}>
+      <div style={{ position:'absolute', top:-80, right:-60, width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle, rgba(200,90,138,0.2) 0%, transparent 70%)', pointerEvents:'none' }}/>
+      <div style={{ position:'absolute', bottom:100, left:-80, width:280, height:280, borderRadius:'50%', background:'radial-gradient(circle, rgba(201,162,77,0.15) 0%, transparent 70%)', pointerEvents:'none' }}/>
+      <StatusBar color={F.ink}/>
+      <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', paddingBottom:40 }}>
+        <FiniMascot size={180} mood="wave" style={{ marginBottom:24 }}/>
+        <div style={{ textAlign:'center', padding:'0 32px' }}>
+          <h1 style={{ fontSize:28, fontWeight:700, color:F.ink, lineHeight:1.3, marginBottom:10 }}>שלום\! אני פיני 👋</h1>
+          <p style={{ fontSize:18, fontWeight:600, color:F.ink, marginBottom:8 }}>העוזר הכספי שלך</p>
+          <p style={{ fontSize:15, color:F.inkSoft, lineHeight:1.6 }}>אעזור לך לנהל את הכסף שלך בצורה חכמה, פשוטה ואפילו כיפית</p>
+        </div>
+      </div>
+      <div style={{ width:'100%', padding:'0 24px 50px', display:'flex', flexDirection:'column', gap:12 }}>
+        <button onClick={() => nav('obGoal')} style={{ width:'100%', height:54, borderRadius:27, background:'#000', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:10, fontFamily:F.font }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 14.5v-9l7 4.5-7 4.5z"/></svg>
+          <span style={{ color:'#fff', fontSize:16, fontWeight:600 }}>המשך עם Apple</span>
+        </button>
+        <button onClick={() => nav('obGoal')} style={{ width:'100%', height:54, borderRadius:27, background:'#fff', border:`2px solid ${F.line}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:10, fontFamily:F.font }}>
+          <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          <span style={{ color:F.ink, fontSize:16, fontWeight:600 }}>המשך עם Google</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ==================== ONBOARDING GOAL ====================
+function ObGoal({ nav }) {
+  const [sel, setSel] = React.useState(1);
+  const goals = [
+    { emoji:'💰', title:'לחסוך יותר', subtitle:'לבנות קרן חירום ולחסוך לעתיד' },
+    { emoji:'📊', title:'לעקוב אחרי הוצאות', subtitle:'לדעת לאן הכסף הולך כל חודש' },
+    { emoji:'💳', title:'לנהל חובות', subtitle:'להחזיר הלוואות ולהפחית חובות' },
+    { emoji:'🏡', title:'להגשים חלום', subtitle:'לקנות דירה, לטייל או לחתונה' },
+  ];
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.rose, position:'relative', overflow:'hidden', display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl' }}>
+      <StatusBar color={F.ink}/>
+      <ObHeader step="2/5" onBack={() => nav('obWelcome')} onSkip={() => nav('obIncome')}/>
+      <ProgressDots i={1}/>
+      <div style={{ padding:'8px 20px 4px' }}>
+        <FiniBubble text="מה המטרה הכספית שלך הכי חשובה?" mood="happy"/>
+        <FiniBubble text="בחר את מה שמתאים לך ביותר עכשיו 👇" mood="wink"/>
+      </div>
+      <div style={{ flex:1, overflow:'auto', padding:'8px 20px 20px', display:'flex', flexDirection:'column', gap:10 }}>
+        {goals.map((g, idx) => (
+          <div key={idx} onClick={() => { setSel(idx); setTimeout(() => nav('obIncome'), 300); }}
+            style={{ padding:'16px 18px', borderRadius:18, background: sel===idx ? F.ink : '#fff', border: sel===idx ? 'none' : `2px solid ${F.line}`, cursor:'pointer', display:'flex', alignItems:'center', gap:14, transition:'all 0.2s', boxShadow: sel===idx ? '0 4px 16px rgba(31,26,21,0.2)' : '0 2px 8px rgba(31,26,21,0.06)' }}>
+            <span style={{ fontSize:28 }}>{g.emoji}</span>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:16, fontWeight:600, color: sel===idx ? F.cream : F.ink, marginBottom:2 }}>{g.title}</div>
+              <div style={{ fontSize:13, color: sel===idx ? 'rgba(247,245,232,0.7)' : F.inkMute }}>{g.subtitle}</div>
+            </div>
+            {sel===idx && <Icon name="check" size={20} color={F.cream}/>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ==================== ONBOARDING INCOME ====================
+function ObIncome({ nav }) {
+  const [sel, setSel] = React.useState(2);
+  const options = [
+    { label:'עד ₪5,000', sub:'עד 5 אלף' },
+    { label:'₪5,000 – ₪10,000', sub:'5 עד 10 אלף' },
+    { label:'₪10,000 – ₪20,000', sub:'10 עד 20 אלף' },
+    { label:'₪20,000+', sub:'מעל 20 אלף' },
+  ];
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.rose, position:'relative', overflow:'hidden', display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl' }}>
+      <StatusBar color={F.ink}/>
+      <ObHeader step="3/5" onBack={() => nav('obGoal')} onSkip={() => nav('obPlan')}/>
+      <ProgressDots i={2}/>
+      <div style={{ padding:'8px 20px 4px' }}>
+        <FiniBubble text="מגניב 💫 כמה בערך ההכנסה החודשית שלך?" mood="happy"/>
+      </div>
+      <div style={{ flex:1, overflow:'auto', padding:'8px 20px 16px', display:'flex', flexDirection:'column', gap:10 }}>
+        {options.map((o, idx) => (
+          <div key={idx} onClick={() => setSel(idx)}
+            style={{ padding:'14px 18px', borderRadius:16, background: sel===idx ? F.pink : '#fff', border: sel===idx ? 'none' : `2px solid ${F.line}`, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'space-between', transition:'all 0.2s' }}>
+            <span style={{ fontSize:16, fontWeight:600, color: sel===idx ? '#fff' : F.ink }}>{o.label}</span>
+            <div style={{ width:22, height:22, borderRadius:11, border: sel===idx ? 'none' : `2px solid ${F.line}`, background: sel===idx ? 'rgba(255,255,255,0.4)' : 'transparent', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              {sel===idx && <div style={{ width:10, height:10, borderRadius:5, background:'#fff' }}/>}
+            </div>
+          </div>
+        ))}
+        <div style={{ padding:'16px 18px', borderRadius:16, background:'#fff', border:`2px solid ${F.line}`, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <div>
+            <div style={{ fontSize:13, color:F.inkMute, marginBottom:4 }}>סכום מדויק (אופציונלי)</div>
+            <div style={{ fontSize:24, fontWeight:700, color:F.ink }}>₪12,400</div>
+          </div>
+          <span style={{ background:F.goldTint, color:F.gold, fontSize:12, fontWeight:600, padding:'4px 10px', borderRadius:20 }}>בערך</span>
+        </div>
+      </div>
+      <div style={{ padding:'0 20px 40px' }}>
+        <button onClick={() => nav('obPlan')} style={{ width:'100%', height:54, borderRadius:27, background:F.pink, border:'none', cursor:'pointer', fontSize:17, fontWeight:700, color:'#fff', fontFamily:F.font }}>
+          הלאה ←
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ==================== ONBOARDING PLAN ====================
+function ObPlan({ nav }) {
+  const [sel, setSel] = React.useState(1);
+  const plans = [
+    { id:'free', name:'חינמי', price:'₪0', period:'לתמיד', features:['מעקב הוצאות בסיסי','3 קטגוריות','דוח חודשי'] },
+    { id:'pro', name:'Pro', price:'₪29', period:'לחודש', badge:'הפופולרי • 7 ימי ניסיון', features:['מעקב ללא הגבלה','AI תובנות','סריקת קבלות','תקציב חכם'] },
+    { id:'proplus', name:'Pro+', price:'₪49', period:'לחודש', features:['הכל ב-Pro','חשבון זוגי','יעוץ פיננסי','ייצוא נתונים'] },
+  ];
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.rose, position:'relative', overflow:'hidden', display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl' }}>
+      <StatusBar color={F.ink}/>
+      <ObHeader step="5/5" onBack={() => nav('obIncome')} onSkip={() => nav('chat')}/>
+      <ProgressDots i={4}/>
+      <div style={{ padding:'8px 20px 4px' }}>
+        <FiniBubble text="בחר את התוכנית שמתאימה לך 🚀 ניתן לשנות בכל עת" mood="happy"/>
+      </div>
+      <div style={{ flex:1, overflow:'auto', padding:'8px 20px 16px', display:'flex', flexDirection:'column', gap:10 }}>
+        {plans.map((pl, idx) => (
+          <div key={pl.id} onClick={() => setSel(idx)}
+            style={{ padding:'16px 18px', borderRadius:18, background:'#fff', border: sel===idx ? `2px solid ${F.pink}` : `2px solid ${F.line}`, cursor:'pointer', transition:'all 0.2s', boxShadow: sel===idx ? `0 4px 20px rgba(200,90,138,0.18)` : '0 2px 8px rgba(31,26,21,0.05)' }}>
+            {pl.badge && (
+              <div style={{ background:F.pink, color:'#fff', fontSize:11, fontWeight:700, padding:'3px 10px', borderRadius:20, display:'inline-block', marginBottom:8 }}>{pl.badge}</div>
+            )}
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+              <span style={{ fontSize:17, fontWeight:700, color:F.ink }}>{pl.name}</span>
+              <div style={{ textAlign:'left' }}>
+                <span style={{ fontSize:20, fontWeight:700, color: sel===idx ? F.pink : F.ink }}>{pl.price}</span>
+                <span style={{ fontSize:12, color:F.inkMute }}> /{pl.period}</span>
+              </div>
+            </div>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+              {pl.features.map((f, fi) => (
+                <span key={fi} style={{ fontSize:12, color:F.inkSoft, background:F.lineSoft, padding:'3px 8px', borderRadius:10 }}>{f}</span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ padding:'0 20px 40px' }}>
+        <button onClick={() => nav('chat')} style={{ width:'100%', height:54, borderRadius:27, background:F.pink, border:'none', cursor:'pointer', fontSize:17, fontWeight:700, color:'#fff', fontFamily:F.font, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+          <Icon name="sparkle" size={20} color="#fff"/>
+          להתחיל 7 ימי ניסיון
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ==================== CHAT HEADER ====================
+function ChatHeader({ nav }) {
+  return (
+    <div style={{ padding:'4px 20px 10px', display:'flex', alignItems:'center', justifyContent:'space-between', direction:'rtl' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+        <div style={{ position:'relative' }}>
+          <FiniAvatar size={44} mood="happy"/>
+          <div style={{ position:'absolute', bottom:1, right:1, width:10, height:10, borderRadius:5, background:'#5B8E6F', border:'2px solid '+F.rose }}/>
+        </div>
+        <div>
+          <div style={{ fontSize:16, fontWeight:700, color:F.ink }}>פיני</div>
+          <div style={{ fontSize:12, color:F.green }}>מחובר · כאן בשבילך</div>
+        </div>
+      </div>
+      <div style={{ display:'flex', gap:8 }}>
+        <button onClick={() => nav('data')} style={{ width:36, height:36, borderRadius:18, background:'rgba(31,26,21,0.06)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon name="receipt" size={18} color={F.inkSoft}/>
+        </button>
+        <button style={{ width:36, height:36, borderRadius:18, background:'rgba(31,26,21,0.06)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon name="dots" size={18} color={F.inkSoft}/>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ==================== CHAT BUBBLES ====================
+function FBubble({ text, mood='happy', time }) {
+  return (
+    <div style={{ display:'flex', alignItems:'flex-end', gap:8, padding:'4px 16px', direction:'rtl' }}>
+      <FiniAvatar size={32} mood={mood}/>
+      <div>
+        <div style={{ background:'#fff', borderRadius:'18px 18px 18px 4px', padding:'10px 14px', maxWidth:260, boxShadow:'0 2px 8px rgba(31,26,21,0.08)' }}>
+          <span style={{ fontSize:14, color:F.ink, lineHeight:1.6 }}>{text}</span>
+        </div>
+        {time && <div style={{ fontSize:11, color:F.inkMute, marginTop:3, marginRight:4 }}>{time}</div>}
+      </div>
+    </div>
+  );
+}
+
+function UBubble({ text, time }) {
+  return (
+    <div style={{ display:'flex', justifyContent:'flex-start', padding:'4px 16px', direction:'ltr' }}>
+      <div>
+        <div style={{ background:F.pink, borderRadius:'18px 18px 4px 18px', padding:'10px 14px', maxWidth:240 }}>
+          <span style={{ fontSize:14, color:'#fff', lineHeight:1.6 }}>{text}</span>
+        </div>
+        {time && <div style={{ fontSize:11, color:F.inkMute, marginTop:3, textAlign:'right', marginLeft:4 }}>{time}</div>}
+      </div>
+    </div>
+  );
+}
+
+function TxChip({ cat, title, amount }) {
+  const c = CATS[cat] || CATS.food;
+  const pos = amount > 0;
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:'#fff', borderRadius:16, boxShadow:'0 2px 8px rgba(31,26,21,0.08)', margin:'2px 0' }}>
+      <CatIcon cat={cat} size={36} radius={10}/>
+      <div style={{ flex:1 }}>
+        <div style={{ fontSize:14, fontWeight:600, color:F.ink }}>{title}</div>
+        <div style={{ fontSize:12, color:F.inkMute }}>{c.label}</div>
+      </div>
+      <span style={{ fontSize:15, fontWeight:700, color: pos ? F.income : F.expense }}>{pos ? '+' : ''}₪{Math.abs(amount).toLocaleString()}</span>
+    </div>
+  );
+}
+
+function InsightCard({ icon, title, desc, tint, ink, onTap }) {
+  return (
+    <div onClick={onTap} style={{ padding:'14px 16px', borderRadius:18, background:tint, border:`1.5px solid ${ink}22`, cursor:'pointer', boxShadow:'0 2px 10px rgba(31,26,21,0.07)' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
+        <div style={{ width:34, height:34, borderRadius:10, background:`${ink}20`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon name={icon} size={18} color={ink}/>
+        </div>
+        <span style={{ fontSize:14, fontWeight:700, color:F.ink }}>{title}</span>
+      </div>
+      <span style={{ fontSize:13, color:F.inkSoft, lineHeight:1.5 }}>{desc}</span>
+    </div>
+  );
+}
+
+function SuggChips({ chips, onChip }) {
+  return (
+    <div style={{ display:'flex', gap:8, flexWrap:'wrap', padding:'4px 16px' }}>
+      {chips.map((c, i) => (
+        <button key={i} onClick={() => onChip && onChip(c)} style={{ padding:'7px 14px', borderRadius:20, background:'#fff', border:`1.5px solid ${F.line}`, cursor:'pointer', fontSize:13, color:F.inkSoft, fontFamily:F.font, boxShadow:'0 1px 4px rgba(31,26,21,0.06)' }}>{c}</button>
+      ))}
+    </div>
+  );
+}
+
+// ==================== CHAT MAIN ====================
+function ChatMain({ nav }) {
+  const [input, setInput] = React.useState('');
+  const handleTab = (t) => {
+    if (t === 'insights') nav('insights');
+    else if (t === 'data') nav('data');
+  };
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.rose, display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl', position:'relative' }}>
+      <StatusBar color={F.ink}/>
+      <ChatHeader nav={nav}/>
+      <div style={{ flex:1, overflow:'auto', paddingBottom:160 }}>
+        <FBubble text="שלום\! 👋 אני פיני, העוזר הכספי שלך. מה קורה היום?" time="9:30"/>
+        <UBubble text="כמה הוצאתי השבוע?" time="9:31"/>
+        <FBubble text="בדקתי\! השבוע הוצאת:" mood="talk" time="9:31"/>
+        <div style={{ padding:'4px 16px 4px 52px' }}>
+          <TxChip cat="food" title="לחמים" amount={-68}/>
+          <TxChip cat="grocery" title="שופרסל דיל" amount={-214}/>
+          <TxChip cat="fun" title="סינמה סיטי" amount={-96}/>
+        </div>
+        <FBubble text="סה״כ ₪378 — קצת יותר מהשבוע שעבר, בעיקר בגלל הקולנוע 🍿" time="9:32"/>
+        <div style={{ padding:'4px 16px 8px 52px' }}>
+          <InsightCard icon="trend" title="טיפ חכם" desc="אם תפחית הוצאות בילויים ב-30%, תחסוך ₪200 נוספים החודש" tint={F.lavender} ink={F.blue} onTap={() => nav('insights')}/>
+        </div>
+        <SuggChips chips={['הצג תקציב', 'כמה חסכתי?', 'הוסף הוצאה']} onChip={(c) => { if (c === 'הוסף הוצאה') nav('addTx'); }}/>
+      </div>
+      <div style={{ position:'absolute', bottom:90, left:16, right:16, display:'flex', gap:10, alignItems:'center' }}>
+        <button onClick={() => nav('addTx')} style={{ width:44, height:44, borderRadius:22, background:F.pink, border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 12px rgba(200,90,138,0.3)', flexShrink:0 }}>
+          <Icon name="plus" size={22} color="#fff"/>
+        </button>
+        <div style={{ flex:1, height:44, borderRadius:22, background:'#fff', display:'flex', alignItems:'center', paddingRight:16, paddingLeft:8, boxShadow:'0 2px 10px rgba(31,26,21,0.1)', gap:8 }}>
+          <input value={input} onChange={e => setInput(e.target.value)} placeholder="שאל אותי משהו..." style={{ flex:1, border:'none', outline:'none', fontSize:15, color:F.ink, background:'transparent', fontFamily:F.font, direction:'rtl' }}/>
+          <button style={{ width:32, height:32, borderRadius:16, background: input ? F.pink : 'transparent', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', transition:'all 0.2s' }}>
+            <Icon name="send" size={16} color={input ? '#fff' : F.inkMute}/>
+          </button>
+        </div>
+        <button style={{ width:44, height:44, borderRadius:22, background:'#fff', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 8px rgba(31,26,21,0.1)', flexShrink:0 }}>
+          <Icon name="mic" size={20} color={F.inkSoft}/>
+        </button>
+      </div>
+      <TabBar active="chat" onTab={handleTab}/>
+    </div>
+  );
+}
+
+// ==================== CHAT BRIEF ====================
+function ChatBrief({ nav }) {
+  const handleTab = (t) => {
+    if (t === 'insights') nav('insights');
+    else if (t === 'data') nav('data');
+    else nav('chat');
+  };
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.rose, display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl', position:'relative' }}>
+      <StatusBar color={F.ink}/>
+      <ChatHeader nav={nav}/>
+      <div style={{ flex:1, overflow:'auto', paddingBottom:160 }}>
+        <FBubble text="בוקר טוב\! ☀️ הנה הסיכום הבוקר שלך:" time="8:00" mood="happy"/>
+        <div style={{ padding:'4px 16px 4px 52px' }}>
+          <div style={{ background:'#fff', borderRadius:20, padding:'18px 18px', boxShadow:'0 4px 16px rgba(31,26,21,0.1)' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+              <span style={{ fontSize:13, color:F.inkMute }}>נובמבר 2024</span>
+              <span style={{ fontSize:13, fontWeight:600, color:F.ink }}>14 ימים נותרו</span>
+            </div>
+            <div style={{ textAlign:'center', marginBottom:16 }}>
+              <div style={{ fontSize:36, fontWeight:700, color:F.ink }}>₪4,820</div>
+              <div style={{ fontSize:13, color:F.inkMute }}>נשאר מתוך ₪8,000</div>
+            </div>
+            <div style={{ height:8, borderRadius:4, background:F.line, overflow:'hidden', position:'relative' }}>
+              <div style={{ position:'absolute', top:0, right:0, height:'100%', width:'40%', borderRadius:4, background:`linear-gradient(to left, ${F.pink}, ${F.pinkSoft})` }}/>
+            </div>
+            <div style={{ display:'flex', justifyContent:'space-between', marginTop:8 }}>
+              <span style={{ fontSize:12, color:F.inkMute }}>הוצאת ₪3,180</span>
+              <span style={{ fontSize:12, color:F.income, fontWeight:600 }}>40% מהתקציב</span>
+            </div>
+          </div>
+        </div>
+        <FBubble text="3 דברים שכדאי לדעת:" mood="talk"/>
+        <div style={{ padding:'4px 16px 4px 52px', display:'flex', flexDirection:'column', gap:8 }}>
+          <InsightCard icon="bolt" title="חשמל גבוה" desc="הוצאת ₪288 על חשמל — ₪60 יותר מהחודש שעבר" tint={F.goldTint} ink={F.gold}/>
+          <InsightCard icon="trend" title="חיסכון בדרך" desc="השגת 78% מיעד החיסכון החודשי — כל הכבוד\! 🎉" tint={F.incomeTint} ink={F.income}/>
+          <InsightCard icon="calendar" title="תשלום קרוב" desc="שכר דירה ₪3,200 מתוזמן ל-1 בדצמבר" tint={F.lavender} ink={F.blue}/>
+        </div>
+        <SuggChips chips={['פירוט הוצאות', 'עצות חיסכון', 'השווה לחודש קודם']} />
+      </div>
+      <div style={{ position:'absolute', bottom:90, left:16, right:16, display:'flex', gap:10, alignItems:'center' }}>
+        <button onClick={() => nav('addTx')} style={{ width:44, height:44, borderRadius:22, background:F.pink, border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 12px rgba(200,90,138,0.3)', flexShrink:0 }}>
+          <Icon name="plus" size={22} color="#fff"/>
+        </button>
+        <div style={{ flex:1, height:44, borderRadius:22, background:'#fff', display:'flex', alignItems:'center', paddingRight:16, paddingLeft:8, boxShadow:'0 2px 10px rgba(31,26,21,0.1)' }}>
+          <input placeholder="שאל אותי משהו..." style={{ flex:1, border:'none', outline:'none', fontSize:15, color:F.ink, background:'transparent', fontFamily:F.font, direction:'rtl' }}/>
+        </div>
+        <button style={{ width:44, height:44, borderRadius:22, background:'#fff', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 8px rgba(31,26,21,0.1)', flexShrink:0 }}>
+          <Icon name="mic" size={20} color={F.inkSoft}/>
+        </button>
+      </div>
+      <TabBar active="chat" onTab={handleTab}/>
+    </div>
+  );
+}
+
+// ==================== INSIGHTS MAIN ====================
+function InsightsMain({ nav }) {
+  const handleTab = (t) => {
+    if (t === 'chat') nav('chat');
+    else if (t === 'data') nav('data');
+  };
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.mint, display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl', position:'relative' }}>
+      <StatusBar color={F.ink}/>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'4px 20px 12px' }}>
+        <span style={{ fontSize:22, fontWeight:700, color:F.ink }}>תובנות</span>
+        <button style={{ width:36, height:36, borderRadius:18, background:'rgba(31,26,21,0.06)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon name="bell" size={18} color={F.inkSoft}/>
+        </button>
+      </div>
+      <div style={{ flex:1, overflow:'auto', padding:'0 20px', paddingBottom:120, display:'flex', flexDirection:'column', gap:14 }}>
+        {/* Savings hero */}
+        <div onClick={() => nav('savings')} style={{ background:'#fff', borderRadius:22, padding:'20px 20px', cursor:'pointer', boxShadow:'0 4px 20px rgba(31,26,21,0.08)' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+            <div>
+              <div style={{ fontSize:13, color:F.inkMute, marginBottom:4 }}>יעד חיסכון — חופשה לאיטליה</div>
+              <div style={{ fontSize:28, fontWeight:700, color:F.ink }}>₪5,600</div>
+              <div style={{ fontSize:13, color:F.inkMute }}>מתוך ₪10,000</div>
+            </div>
+            <div style={{ width:64, height:64, borderRadius:32, background:F.mint, display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <span style={{ fontSize:28 }}>✈️</span>
+            </div>
+          </div>
+          <div style={{ height:8, borderRadius:4, background:F.mintDeep, overflow:'hidden', position:'relative' }}>
+            <div style={{ position:'absolute', top:0, right:0, height:'100%', width:'56%', borderRadius:4, background:F.green }}/>
+          </div>
+          <div style={{ display:'flex', justifyContent:'space-between', marginTop:8 }}>
+            <span style={{ fontSize:12, color:F.inkMute }}>56% הושג</span>
+            <span style={{ fontSize:12, color:F.green, fontWeight:600 }}>עוד ₪4,400 ←</span>
+          </div>
+        </div>
+        {/* Gold tip */}
+        <div onClick={() => nav('paywall')} style={{ background:F.goldTint, borderRadius:18, padding:'16px 18px', border:`1.5px solid ${F.gold}33`, cursor:'pointer' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <FiniAvatar size={36} mood="wink"/>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:F.gold, marginBottom:3 }}>טיפ פיני PRO ✨</div>
+              <div style={{ fontSize:13, color:F.inkSoft, lineHeight:1.5 }}>שדרג ל-Pro כדי לקבל תובנות AI מתקדמות ותחזיות חודשיות</div>
+            </div>
+            <Icon name="arrow" size={18} color={F.gold}/>
+          </div>
+        </div>
+        {/* Insight rows */}
+        {[
+          { icon:'trend', title:'הוצאות מסעדות עלו ב-23%', desc:'השבוע הוצאת ₪340 על אוכל מחוץ לבית, ₪64 יותר מהשבוע שעבר', tint:F.expenseTint, ink:F.expense },
+          { icon:'piggy', title:'חסכת ₪1,200 החודש', desc:'מדהים\! אתה בדרך הנכונה להגיע ליעד החיסכון שלך', tint:F.incomeTint, ink:F.income },
+          { icon:'bolt', title:'חשבון חשמל גבוה', desc:'₪288 השבוע — 24% מעל הממוצע שלך. בדוק מכשירים שפועלים בהמתנה', tint:F.goldTint, ink:F.gold },
+        ].map((r, i) => (
+          <div key={i} style={{ background:'#fff', borderRadius:18, padding:'16px 18px', boxShadow:'0 2px 10px rgba(31,26,21,0.06)' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+              <div style={{ width:44, height:44, borderRadius:14, background:r.tint, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <Icon name={r.icon} size={22} color={r.ink}/>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:14, fontWeight:700, color:F.ink, marginBottom:4 }}>{r.title}</div>
+                <div style={{ fontSize:12, color:F.inkSoft, lineHeight:1.5 }}>{r.desc}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <TabBar active="insights" onTab={handleTab}/>
+    </div>
+  );
+}
+
+// ==================== SAVINGS GOAL ====================
+function SavingsGoal({ nav }) {
+  const handleTab = (t) => {
+    if (t === 'chat') nav('chat');
+    else if (t === 'data') nav('data');
+    else nav('insights');
+  };
+  const pct = 56;
+  const r = 80;
+  const circ = 2 * Math.PI * r;
+  const dash = (pct / 100) * circ;
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.mint, display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl', position:'relative' }}>
+      <StatusBar color={F.ink}/>
+      <div style={{ display:'flex', alignItems:'center', padding:'4px 20px 12px', gap:12 }}>
+        <button onClick={() => nav('insights')} style={{ width:36, height:36, borderRadius:18, background:'rgba(31,26,21,0.06)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon name="arrowL" size={20} color={F.inkSoft}/>
+        </button>
+        <span style={{ fontSize:20, fontWeight:700, color:F.ink }}>יעד חיסכון</span>
+      </div>
+      <div style={{ flex:1, overflow:'auto', padding:'0 20px', paddingBottom:120 }}>
+        <div style={{ background:'#fff', borderRadius:24, padding:'28px 24px', marginBottom:14, boxShadow:'0 4px 20px rgba(31,26,21,0.08)' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'center', marginBottom:20 }}>
+            <svg width={200} height={200} style={{ transform:'rotate(-90deg)' }}>
+              <circle cx={100} cy={100} r={r} fill="none" stroke={F.mintDeep} strokeWidth={14}/>
+              <circle cx={100} cy={100} r={r} fill="none" stroke={F.green} strokeWidth={14}
+                strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"/>
+            </svg>
+            <div style={{ position:'absolute', textAlign:'center' }}>
+              <span style={{ fontSize:36, fontWeight:700, color:F.ink }}>{pct}%</span>
+              <br/>
+              <span style={{ fontSize:13, color:F.inkMute }}>הושג</span>
+            </div>
+          </div>
+          <div style={{ textAlign:'center', marginBottom:20 }}>
+            <div style={{ fontSize:28, fontWeight:700, color:F.ink }}>₪5,600</div>
+            <div style={{ fontSize:14, color:F.inkMute }}>מתוך ₪10,000 · חופשה לאיטליה ✈️</div>
+          </div>
+          <div style={{ display:'flex', justifyContent:'space-between', borderTop:`1.5px solid ${F.line}`, paddingTop:16, gap:8 }}>
+            {[{l:'נשאר',v:'₪4,400'},{l:'חודשי',v:'₪800'},{l:'עד היעד',v:'5.5 חודשים'}].map((s, i) => (
+              <div key={i} style={{ textAlign:'center', flex:1 }}>
+                <div style={{ fontSize:16, fontWeight:700, color:F.ink }}>{s.v}</div>
+                <div style={{ fontSize:12, color:F.inkMute }}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ background:'#fff', borderRadius:20, padding:'18px 18px', boxShadow:'0 2px 10px rgba(31,26,21,0.06)' }}>
+          <div style={{ fontSize:15, fontWeight:700, color:F.ink, marginBottom:14 }}>ציר זמן</div>
+          {[
+            { month:'נובמבר', amount:'₪800', done:true },
+            { month:'דצמבר', amount:'₪800', done:false },
+            { month:'ינואר', amount:'₪800', done:false },
+            { month:'פברואר', amount:'₪800', done:false },
+            { month:'מרץ — יעד\!', amount:'₪1,200', done:false },
+          ].map((m, i) => (
+            <div key={i} style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
+              <div style={{ width:10, height:10, borderRadius:5, background: m.done ? F.green : F.mintDeep, flexShrink:0 }}/>
+              <div style={{ flex:1, fontSize:14, color: m.done ? F.ink : F.inkMute, fontWeight: m.done ? 600 : 400 }}>{m.month}</div>
+              <span style={{ fontSize:14, fontWeight:600, color: m.done ? F.green : F.inkMute }}>{m.amount}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <TabBar active="insights" onTab={handleTab}/>
+    </div>
+  );
+}
+
+// ==================== DATA MAIN ====================
+function DataMain({ nav }) {
+  const handleTab = (t) => {
+    if (t === 'chat') nav('chat');
+    else if (t === 'insights') nav('insights');
+  };
+  const chartPts = [60, 80, 55, 90, 70, 85, 65, 78, 50, 88, 72, 95];
+  const w = 330, h = 80;
+  const xStep = w / (chartPts.length - 1);
+  const minV = Math.min(...chartPts), maxV = Math.max(...chartPts);
+  const toY = v => h - ((v - minV) / (maxV - minV)) * (h - 10) - 5;
+  const pts = chartPts.map((v, i) => `${i * xStep},${toY(v)}`).join(' ');
+  const areaPath = `M0,${h} L${pts.split(' ').map(p => p).join(' L')} L${(chartPts.length-1)*xStep},${h} Z`;
+
+  const catData = [
+    { cat:'rent', pct:42, amt:3200 },
+    { cat:'food', pct:15, amt:340 },
+    { cat:'grocery', pct:12, amt:214 },
+    { cat:'transport', pct:8, amt:82 },
+    { cat:'utility', pct:10, amt:288 },
+    { cat:'fun', pct:8, amt:96 },
+    { cat:'phone', pct:5, amt:99 },
+  ];
+
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.lavender, display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl', position:'relative' }}>
+      <StatusBar color={F.ink}/>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'4px 20px 12px' }}>
+        <span style={{ fontSize:22, fontWeight:700, color:F.ink }}>נתונים</span>
+        <div style={{ display:'flex', alignItems:'center', gap:8, background:'rgba(255,255,255,0.6)', borderRadius:20, padding:'6px 14px', cursor:'pointer' }}>
+          <span style={{ fontSize:14, fontWeight:600, color:F.ink }}>נובמבר 2024</span>
+          <Icon name="calendar" size={16} color={F.inkSoft}/>
+        </div>
+      </div>
+      <div style={{ flex:1, overflow:'auto', padding:'0 20px', paddingBottom:120 }}>
+        {/* Balance hero */}
+        <div style={{ background:'linear-gradient(135deg, #fff 0%, #E8ECFF 100%)', borderRadius:24, padding:'22px 22px', marginBottom:14, boxShadow:'0 4px 20px rgba(90,111,184,0.15)' }}>
+          <div style={{ fontSize:13, color:F.inkMute, marginBottom:6 }}>יתרה נוכחית</div>
+          <div style={{ fontSize:36, fontWeight:700, color:F.ink, marginBottom:16 }}>₪8,542</div>
+          <div style={{ display:'flex', gap:20 }}>
+            <div>
+              <div style={{ fontSize:12, color:F.inkMute }}>הכנסות</div>
+              <div style={{ fontSize:18, fontWeight:700, color:F.income }}>+₪12,400</div>
+            </div>
+            <div style={{ width:1, background:F.line }}/>
+            <div>
+              <div style={{ fontSize:12, color:F.inkMute }}>הוצאות</div>
+              <div style={{ fontSize:18, fontWeight:700, color:F.expense }}>-₪3,858</div>
+            </div>
+          </div>
+        </div>
+        {/* Split bar */}
+        <div style={{ background:'#fff', borderRadius:18, padding:'16px 18px', marginBottom:14, boxShadow:'0 2px 10px rgba(31,26,21,0.06)' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', marginBottom:10 }}>
+            <span style={{ fontSize:13, fontWeight:600, color:F.income }}>הכנסות 76%</span>
+            <span style={{ fontSize:13, fontWeight:600, color:F.expense }}>הוצאות 24%</span>
+          </div>
+          <div style={{ height:10, borderRadius:5, overflow:'hidden', display:'flex' }}>
+            <div style={{ width:'76%', background:F.income, borderRadius:'5px 0 0 5px' }}/>
+            <div style={{ width:'24%', background:F.expense, borderRadius:'0 5px 5px 0' }}/>
+          </div>
+        </div>
+        {/* Chart */}
+        <div style={{ background:'#fff', borderRadius:18, padding:'16px 18px', marginBottom:14, boxShadow:'0 2px 10px rgba(31,26,21,0.06)' }}>
+          <div style={{ fontSize:14, fontWeight:700, color:F.ink, marginBottom:12 }}>מגמת הוצאות</div>
+          <svg width="100%" height={h+10} viewBox={`0 0 ${w} ${h+10}`} preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={F.blue} stopOpacity="0.2"/>
+                <stop offset="100%" stopColor={F.blue} stopOpacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d={areaPath} fill="url(#chartGrad)"/>
+            <polyline points={pts} fill="none" stroke={F.blue} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        {/* 2-up cards */}
+        <div style={{ display:'flex', gap:12, marginBottom:14 }}>
+          <div style={{ flex:1, background:'#fff', borderRadius:18, padding:'16px 14px', boxShadow:'0 2px 10px rgba(31,26,21,0.06)' }}>
+            <div style={{ width:38, height:38, borderRadius:12, background:F.goldTint, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:8 }}>
+              <Icon name="piggy" size={20} color={F.gold}/>
+            </div>
+            <div style={{ fontSize:12, color:F.inkMute, marginBottom:2 }}>חיסכון</div>
+            <div style={{ fontSize:20, fontWeight:700, color:F.ink }}>₪1,200</div>
+            <div style={{ fontSize:12, color:F.green }}>+₪200 החודש</div>
+          </div>
+          <div onClick={() => nav('couples')} style={{ flex:1, background:'#fff', borderRadius:18, padding:'16px 14px', cursor:'pointer', boxShadow:'0 2px 10px rgba(31,26,21,0.06)' }}>
+            <div style={{ width:38, height:38, borderRadius:12, background:F.rose, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:8 }}>
+              <Icon name="users" size={20} color={F.pink}/>
+            </div>
+            <div style={{ fontSize:12, color:F.inkMute, marginBottom:2 }}>זוגי</div>
+            <div style={{ fontSize:20, fontWeight:700, color:F.ink }}>₪3,140</div>
+            <div style={{ fontSize:12, color:F.blue }}>מתוך ₪5,000 ←</div>
+          </div>
+        </div>
+        {/* Category breakdown */}
+        <div onClick={() => nav('transactions')} style={{ background:'#fff', borderRadius:20, padding:'18px 18px', cursor:'pointer', boxShadow:'0 2px 10px rgba(31,26,21,0.06)' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+            <span style={{ fontSize:15, fontWeight:700, color:F.ink }}>לפי קטגוריה</span>
+            <span style={{ fontSize:13, color:F.blue }}>הכל ←</span>
+          </div>
+          {catData.map((cd, i) => (
+            <div key={i} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+              <CatIcon cat={cd.cat} size={34} radius={10}/>
+              <div style={{ flex:1 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:F.ink }}>{CATS[cd.cat].label}</span>
+                  <span style={{ fontSize:13, fontWeight:600, color:F.ink }}>₪{cd.amt.toLocaleString()}</span>
+                </div>
+                <div style={{ height:5, borderRadius:3, background:F.line, overflow:'hidden', position:'relative' }}>
+                  <div style={{ position:'absolute', top:0, right:0, height:'100%', width:`${cd.pct}%`, borderRadius:3, background:CATS[cd.cat].ink }}/>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <TabBar active="data" onTab={handleTab}/>
+    </div>
+  );
+}
+
+// ==================== TRANSACTIONS LIST ====================
+function TransactionsList({ nav }) {
+  const [activeFilter, setActiveFilter] = React.useState('הכל');
+  const filters = ['הכל','הכנסות','הוצאות','מסעדות','תחבורה'];
+  const handleTab = (t) => {
+    if (t === 'chat') nav('chat');
+    else if (t === 'insights') nav('insights');
+  };
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.lavender, display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl', position:'relative' }}>
+      <StatusBar color={F.ink}/>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'4px 20px 10px', gap:12 }}>
+        <button onClick={() => nav('data')} style={{ width:36, height:36, borderRadius:18, background:'rgba(31,26,21,0.06)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon name="arrowL" size={20} color={F.inkSoft}/>
+        </button>
+        <span style={{ fontSize:18, fontWeight:700, color:F.ink, flex:1 }}>עסקאות</span>
+        <button style={{ width:36, height:36, borderRadius:18, background:'rgba(31,26,21,0.06)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon name="search" size={18} color={F.inkSoft}/>
+        </button>
+      </div>
+      <div style={{ display:'flex', gap:8, padding:'0 20px 12px', overflow:'auto' }}>
+        {filters.map(f => (
+          <button key={f} onClick={() => setActiveFilter(f)} style={{ padding:'6px 14px', borderRadius:20, border:'none', cursor:'pointer', fontFamily:F.font, fontSize:13, fontWeight: activeFilter===f ? 600 : 400, background: activeFilter===f ? F.blue : 'rgba(255,255,255,0.7)', color: activeFilter===f ? '#fff' : F.inkSoft, whiteSpace:'nowrap', transition:'all 0.2s' }}>{f}</button>
+        ))}
+      </div>
+      <div style={{ flex:1, overflow:'auto', padding:'0 20px', paddingBottom:100 }}>
+        {TXS.map((group, gi) => (
+          <div key={gi} style={{ marginBottom:16 }}>
+            <div style={{ fontSize:13, fontWeight:600, color:F.inkMute, marginBottom:8 }}>{group.g}</div>
+            <div style={{ background:'#fff', borderRadius:18, overflow:'hidden', boxShadow:'0 2px 10px rgba(31,26,21,0.06)' }}>
+              {group.items.map((tx, ti) => (
+                <div key={ti} onClick={() => nav('txDetail')} style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 16px', borderBottom: ti < group.items.length-1 ? `1px solid ${F.line}` : 'none', cursor:'pointer' }}>
+                  <CatIcon cat={tx.cat} size={40} radius={12}/>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:14, fontWeight:600, color:F.ink, marginBottom:2 }}>{tx.t}</div>
+                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      <span style={{ fontSize:12, color:F.inkMute }}>{tx.s}</span>
+                      {tx.flag && <span style={{ fontSize:11, color:F.blue, background:F.lavenderDeep, padding:'2px 6px', borderRadius:8 }}>{tx.flag}</span>}
+                    </div>
+                  </div>
+                  <span style={{ fontSize:16, fontWeight:700, color: tx.a > 0 ? F.income : F.expense }}>{tx.a > 0 ? '+' : ''}₪{Math.abs(tx.a).toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <TabBar active="data" onTab={handleTab}/>
+    </div>
+  );
+}
+
+// ==================== TX DETAIL SHEET ====================
+function TxDetailSheet({ nav }) {
+  return (
+    <div style={{ width:'100%', height:'100%', position:'relative', fontFamily:F.font, direction:'rtl' }}>
+      <div onClick={() => nav('transactions')} style={{ position:'absolute', inset:0, background:'rgba(31,26,21,0.35)', backdropFilter:'blur(4px)', cursor:'pointer', zIndex:1 }}/>
+      <div style={{ position:'absolute', bottom:0, left:0, right:0, background:'#fff', borderRadius:'28px 28px 0 0', zIndex:2, paddingBottom:40 }}>
+        <div style={{ display:'flex', justifyContent:'center', padding:'14px 0 0' }}>
+          <div style={{ width:40, height:5, borderRadius:3, background:F.line }}/>
+        </div>
+        <div style={{ padding:'20px 24px 0', display:'flex', flexDirection:'column', alignItems:'center', gap:0 }}>
+          <CatIcon cat="food" size={58} radius={18}/>
+          <div style={{ marginTop:14, textAlign:'center' }}>
+            <div style={{ fontSize:22, fontWeight:700, color:F.ink }}>לחמים</div>
+            <div style={{ fontSize:14, color:F.inkMute, marginTop:2 }}>מסעדות · שוק הכרמל, תל אביב</div>
+            <div style={{ fontSize:36, fontWeight:700, color:F.expense, marginTop:8 }}>-₪68</div>
+          </div>
+          <div style={{ display:'flex', gap:8, marginTop:12, flexWrap:'wrap', justifyContent:'center' }}>
+            {['08:12 · היום', 'כרטיס אשראי', 'מסעדות'].map((chip, i) => (
+              <span key={i} style={{ fontSize:12, color:F.inkSoft, background:F.lineSoft, padding:'5px 12px', borderRadius:20, border:`1px solid ${F.line}` }}>{chip}</span>
+            ))}
+          </div>
+        </div>
+        <div style={{ margin:'18px 24px 0', padding:'14px 16px', background:F.rose, borderRadius:16 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <FiniAvatar size={30} mood="wink"/>
+            <span style={{ fontSize:13, color:F.inkSoft, lineHeight:1.5 }}>הוצאה רגילה עבורך\! ממוצע ב-30 יום: ₪55 ⚡</span>
+          </div>
+        </div>
+        <div style={{ margin:'14px 24px 0' }}>
+          {[
+            { icon:'tag', label:'שנה קטגוריה' },
+            { icon:'receipt', label:'הוסף הערה' },
+            { icon:'users', label:'פיצול הוצאה' },
+            { icon:'close', label:'מחק עסקה', danger:true },
+          ].map((row, i) => (
+            <div key={i} style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 4px', borderBottom: i < 3 ? `1px solid ${F.line}` : 'none', cursor:'pointer' }}>
+              <div style={{ width:36, height:36, borderRadius:10, background: row.danger ? F.expenseTint : F.lineSoft, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <Icon name={row.icon} size={18} color={row.danger ? F.expense : F.inkSoft}/>
+              </div>
+              <span style={{ fontSize:15, color: row.danger ? F.expense : F.ink }}>{row.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==================== ADD TX ====================
+function AddTx({ nav }) {
+  const [selCat, setSelCat] = React.useState('grocery');
+  const [type, setType] = React.useState('expense');
+  const catKeys = Object.keys(CATS);
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.rose, display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl' }}>
+      <StatusBar color={F.ink}/>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'4px 20px 12px' }}>
+        <button onClick={() => nav('chat')} style={{ width:36, height:36, borderRadius:18, background:'rgba(31,26,21,0.06)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon name="close" size={20} color={F.inkSoft}/>
+        </button>
+        <span style={{ fontSize:18, fontWeight:700, color:F.ink }}>הוספת עסקה</span>
+        <button style={{ border:'none', background:'none', cursor:'pointer', fontSize:15, fontWeight:600, color:F.pink, fontFamily:F.font }}>שמירה</button>
+      </div>
+      <div style={{ padding:'0 20px 12px' }}>
+        <div style={{ padding:'12px 16px', background:'#fff', borderRadius:16, display:'flex', alignItems:'center', gap:10, boxShadow:'0 2px 8px rgba(31,26,21,0.06)' }}>
+          <FiniAvatar size={30} mood="happy"/>
+          <span style={{ fontSize:13, color:F.inkSoft }}>צלם קבלה וסיים בשניות 📸</span>
+          <Icon name="camera" size={18} color={F.inkMute} style={{ marginRight:'auto' }}/>
+        </div>
+      </div>
+      <div style={{ textAlign:'center', padding:'8px 0 16px' }}>
+        <div style={{ fontSize:56, fontWeight:700, color:F.ink, letterSpacing:'-2px' }}>₪214.50</div>
+        <div style={{ display:'flex', justifyContent:'center', gap:8, marginTop:10 }}>
+          {['הוצאה','הכנסה'].map((lbl, i) => (
+            <button key={lbl} onClick={() => setType(i===0?'expense':'income')} style={{ padding:'7px 20px', borderRadius:20, border:'none', cursor:'pointer', fontFamily:F.font, fontSize:14, fontWeight:600, background: (i===0 ? type==='expense' : type==='income') ? (i===0 ? F.expense : F.income) : F.line, color: (i===0 ? type==='expense' : type==='income') ? '#fff' : F.inkMute, transition:'all 0.2s' }}>{lbl}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ flex:1, overflow:'auto', padding:'0 20px' }}>
+        <div style={{ fontSize:13, fontWeight:600, color:F.inkMute, marginBottom:10 }}>קטגוריה</div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:8, marginBottom:14 }}>
+          {catKeys.map(k => {
+            const c = CATS[k];
+            const on = selCat === k;
+            return (
+              <div key={k} onClick={() => setSelCat(k)} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:5, cursor:'pointer' }}>
+                <div style={{ width:48, height:48, borderRadius:16, background: on ? c.ink : c.tint, display:'flex', alignItems:'center', justifyContent:'center', border: on ? 'none' : `1.5px solid ${c.ink}22`, transition:'all 0.2s' }}>
+                  <Icon name={c.icon} size={22} color={on ? '#fff' : c.ink}/>
+                </div>
+                <span style={{ fontSize:10, color: on ? F.ink : F.inkMute, fontWeight: on ? 600 : 400 }}>{c.label}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 16px', background:'#fff', borderRadius:14, boxShadow:'0 1px 6px rgba(31,26,21,0.06)' }}>
+            <Icon name="receipt" size={18} color={F.inkMute}/>
+            <input placeholder="תיאור (אופציונלי)" style={{ flex:1, border:'none', outline:'none', fontSize:15, color:F.ink, background:'transparent', fontFamily:F.font, direction:'rtl' }}/>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 16px', background:'#fff', borderRadius:14, boxShadow:'0 1px 6px rgba(31,26,21,0.06)' }}>
+            <Icon name="calendar" size={18} color={F.inkMute}/>
+            <span style={{ flex:1, fontSize:15, color:F.ink }}>היום · 14 בנובמבר</span>
+          </div>
+        </div>
+      </div>
+      <div style={{ padding:'12px 20px 40px' }}>
+        <button onClick={() => nav('chat')} style={{ width:'100%', height:54, borderRadius:27, background:F.pink, border:'none', cursor:'pointer', fontSize:17, fontWeight:700, color:'#fff', fontFamily:F.font }}>
+          שמור עסקה
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ==================== PAYWALL ====================
+function Paywall({ nav }) {
+  const [sel, setSel] = React.useState('annual');
+  return (
+    <div style={{ width:'100%', height:'100%', background:'linear-gradient(180deg, #FDDDE8 0%, #F7F5E8 100%)', display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl' }}>
+      <StatusBar color={F.ink}/>
+      <div style={{ display:'flex', justifyContent:'flex-start', padding:'4px 20px 0' }}>
+        <button onClick={() => nav('chat')} style={{ width:36, height:36, borderRadius:18, background:'rgba(31,26,21,0.06)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon name="close" size={20} color={F.inkSoft}/>
+        </button>
+      </div>
+      <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'8px 0 12px' }}>
+        <div style={{ position:'relative' }}>
+          <FiniMascot size={120} mood="happy"/>
+          <div style={{ position:'absolute', top:-4, left:-4, background:'linear-gradient(135deg, #C9A24D, #F7D98A)', borderRadius:12, padding:'4px 10px', transform:'rotate(-15deg)', boxShadow:'0 3px 10px rgba(201,162,77,0.3)' }}>
+            <span style={{ fontSize:13, fontWeight:800, color:'#fff' }}>PRO</span>
+          </div>
+        </div>
+        <h2 style={{ fontSize:24, fontWeight:800, color:F.ink, marginTop:8, textAlign:'center', lineHeight:1.3 }}>שדרג לפיני PRO</h2>
+        <p style={{ fontSize:15, color:F.inkSoft, textAlign:'center', padding:'0 32px', lineHeight:1.5 }}>פתח תובנות AI מתקדמות וניהול כספי חכם</p>
+      </div>
+      <div style={{ margin:'0 20px 14px', background:'#fff', borderRadius:20, padding:'18px 18px', boxShadow:'0 4px 16px rgba(31,26,21,0.08)' }}>
+        {[
+          { icon:'sparkle', text:'תובנות AI מותאמות אישית', sub:'ניתוח חכם של הרגלי ההוצאות שלך' },
+          { icon:'trend', text:'תחזיות חודשיות', sub:'דע מראש כמה תוציא' },
+          { icon:'camera', text:'סריקת קבלות', sub:'הוסף הוצאות בצילום' },
+          { icon:'users', text:'חשבון זוגי', sub:'ניהול משותף עם הפרטנר' },
+        ].map((f, i) => (
+          <div key={i} style={{ display:'flex', alignItems:'center', gap:12, marginBottom: i<3 ? 14 : 0 }}>
+            <div style={{ width:38, height:38, borderRadius:12, background:F.rose, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <Icon name={f.icon} size={18} color={F.pink}/>
+            </div>
+            <div>
+              <div style={{ fontSize:14, fontWeight:600, color:F.ink }}>{f.text}</div>
+              <div style={{ fontSize:12, color:F.inkMute }}>{f.sub}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ padding:'0 20px', display:'flex', gap:10, marginBottom:14 }}>
+        {[{id:'monthly',lbl:'חודשי',price:'₪29'},{id:'annual',lbl:'שנתי',price:'₪199',tag:'חסוך 43%'}].map(pl => (
+          <div key={pl.id} onClick={() => setSel(pl.id)} style={{ flex:1, padding:'14px 12px', borderRadius:16, background:'#fff', border: sel===pl.id ? `2px solid ${F.pink}` : `2px solid ${F.line}`, cursor:'pointer', textAlign:'center', position:'relative', transition:'all 0.2s' }}>
+            {pl.tag && <div style={{ position:'absolute', top:-10, left:'50%', transform:'translateX(-50%)', background:F.pink, color:'#fff', fontSize:11, fontWeight:700, padding:'2px 10px', borderRadius:20, whiteSpace:'nowrap' }}>{pl.tag}</div>}
+            <div style={{ fontSize:13, color:F.inkMute, marginBottom:4 }}>{pl.lbl}</div>
+            <div style={{ fontSize:22, fontWeight:800, color:F.ink }}>{pl.price}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ padding:'0 20px 30px' }}>
+        <button onClick={() => nav('chat')} style={{ width:'100%', height:54, borderRadius:27, background:F.ink, border:'none', cursor:'pointer', fontSize:17, fontWeight:700, color:F.cream, fontFamily:F.font }}>
+          התחל ניסיון חינמי ל-7 ימים
+        </button>
+        <div style={{ textAlign:'center', marginTop:8, fontSize:12, color:F.inkMute }}>ביטול בכל עת · ₪0 כרגע</div>
+      </div>
+    </div>
+  );
+}
+
+// ==================== COUPLES ====================
+function Couples({ nav }) {
+  const jointTxs = [
+    { cat:'grocery', t:'שופרסל', a:-320, who:'נ' },
+    { cat:'rent', t:'שכר דירה', a:-3200, who:'י' },
+    { cat:'fun', t:'מסעדה', a:-180, who:'נ' },
+  ];
+  return (
+    <div style={{ width:'100%', height:'100%', background:F.lavender, display:'flex', flexDirection:'column', fontFamily:F.font, direction:'rtl', position:'relative', overflow:'hidden' }}>
+      <StatusBar color={F.ink}/>
+      <div style={{ display:'flex', alignItems:'center', gap:12, padding:'4px 20px 12px' }}>
+        <button onClick={() => nav('data')} style={{ width:36, height:36, borderRadius:18, background:'rgba(31,26,21,0.06)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <Icon name="arrowL" size={20} color={F.inkSoft}/>
+        </button>
+        <span style={{ fontSize:20, fontWeight:700, color:F.ink, flex:1 }}>חשבון זוגי</span>
+        <span style={{ background:F.blue, color:'#fff', fontSize:11, fontWeight:700, padding:'4px 10px', borderRadius:20 }}>PRO+</span>
+      </div>
+      <div style={{ flex:1, overflow:'auto', padding:'0 20px', paddingBottom:40 }}>
+        {/* Avatars */}
+        <div style={{ display:'flex', justifyContent:'center', marginBottom:20 }}>
+          <div style={{ position:'relative', width:110, height:64 }}>
+            <div style={{ position:'absolute', right:0, width:64, height:64, borderRadius:32, background:'linear-gradient(135deg, #FDDDE8, #F9C6D7)', display:'flex', alignItems:'center', justifyContent:'center', border:'3px solid #fff', boxShadow:'0 4px 14px rgba(200,90,138,0.2)' }}>
+              <span style={{ fontSize:28 }}>נ</span>
+            </div>
+            <div style={{ position:'absolute', left:0, width:64, height:64, borderRadius:32, background:'linear-gradient(135deg, #E8ECFF, #D4DBFA)', display:'flex', alignItems:'center', justifyContent:'center', border:'3px solid #fff', boxShadow:'0 4px 14px rgba(90,111,184,0.2)' }}>
+              <span style={{ fontSize:28 }}>י</span>
+            </div>
+          </div>
+        </div>
+        {/* Budget card */}
+        <div style={{ background:'#fff', borderRadius:22, padding:'20px 20px', marginBottom:14, boxShadow:'0 4px 20px rgba(31,26,21,0.08)' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', marginBottom:14 }}>
+            <div>
+              <div style={{ fontSize:13, color:F.inkMute }}>תקציב זוגי</div>
+              <div style={{ fontSize:28, fontWeight:700, color:F.ink }}>₪3,140</div>
+              <div style={{ fontSize:13, color:F.inkMute }}>מתוך ₪5,000</div>
+            </div>
+            <div style={{ textAlign:'left' }}>
+              <div style={{ fontSize:13, color:F.inkMute }}>נשאר</div>
+              <div style={{ fontSize:22, fontWeight:700, color:F.income }}>₪1,860</div>
+            </div>
+          </div>
+          <div style={{ height:10, borderRadius:5, background:F.lavenderDeep, overflow:'hidden', position:'relative' }}>
+            <div style={{ position:'absolute', top:0, right:0, height:'100%', width:'63%', borderRadius:5, background:`linear-gradient(to left, ${F.blue}, ${F.blueSoft})` }}/>
+          </div>
+          <div style={{ display:'flex', justifyContent:'space-between', marginTop:8 }}>
+            <span style={{ fontSize:12, color:F.inkMute }}>63% הוצא</span>
+            <span style={{ fontSize:12, color:F.blue, fontWeight:600 }}>14 ימים נותרו</span>
+          </div>
+        </div>
+        {/* Joint txs */}
+        <div style={{ background:'#fff', borderRadius:20, overflow:'hidden', marginBottom:14, boxShadow:'0 2px 10px rgba(31,26,21,0.06)' }}>
+          <div style={{ padding:'14px 16px 8px', fontSize:15, fontWeight:700, color:F.ink }}>עסקאות משותפות</div>
+          {jointTxs.map((tx, i) => (
+            <div key={i} style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 16px', borderTop:`1px solid ${F.line}` }}>
+              <CatIcon cat={tx.cat} size={38} radius={11}/>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:14, fontWeight:600, color:F.ink }}>{tx.t}</div>
+                <div style={{ fontSize:12, color:F.inkMute }}>שולם על-ידי {tx.who === 'נ' ? 'נועה' : 'יוסי'}</div>
+              </div>
+              <div style={{ textAlign:'left' }}>
+                <div style={{ fontSize:15, fontWeight:700, color:F.expense }}>₪{Math.abs(tx.a).toLocaleString()}</div>
+                <div style={{ width:22, height:22, borderRadius:11, background: tx.who === 'נ' ? F.rose : F.lavender, display:'flex', alignItems:'center', justifyContent:'center', marginRight:'auto' }}>
+                  <span style={{ fontSize:11, fontWeight:700, color: tx.who === 'נ' ? F.pink : F.blue }}>{tx.who}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Fini tip */}
+        <div style={{ padding:'14px 16px', background:F.rose, borderRadius:18, border:`1.5px solid ${F.roseDeep}` }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <FiniAvatar size={32} mood="wink"/>
+            <span style={{ fontSize:13, color:F.inkSoft, lineHeight:1.5, flex:1 }}>יוסי שילם יותר החודש. פיצול הוגן: נועה חייבת ₪340 ⚖️</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==================== APP ====================
+function App() {
+  const [screen, setScreen] = React.useState('obWelcome');
+  const nav = (s) => setScreen(s);
+
+  const screens = {
+    obWelcome: <ObWelcome nav={nav}/>,
+    obGoal: <ObGoal nav={nav}/>,
+    obIncome: <ObIncome nav={nav}/>,
+    obPlan: <ObPlan nav={nav}/>,
+    chat: <ChatMain nav={nav}/>,
+    brief: <ChatBrief nav={nav}/>,
+    insights: <InsightsMain nav={nav}/>,
+    savings: <SavingsGoal nav={nav}/>,
+    data: <DataMain nav={nav}/>,
+    transactions: <TransactionsList nav={nav}/>,
+    txDetail: <TxDetailSheet nav={nav}/>,
+    addTx: <AddTx nav={nav}/>,
+    paywall: <Paywall nav={nav}/>,
+    couples: <Couples nav={nav}/>,
+  };
+
+  return (
+    <div className="phone">
+      {screens[screen] || screens.chat}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

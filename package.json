@@ -1,0 +1,16 @@
+{
+  "name": "fini",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/web",
+    "apps/mobile"
+  ],
+  "scripts": {
+    "web": "pnpm --filter @fini/web dev",
+    "mobile": "pnpm --filter @fini/mobile start",
+    "build:web": "pnpm --filter @fini/web build"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

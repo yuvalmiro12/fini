@@ -1,0 +1,474 @@
+// \!$*UTF8*$\!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA000001 /* FiniApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000001 /* FiniApp.swift */; };
+		AA000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000002 /* ContentView.swift */; };
+		AA000003 /* Tokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000003 /* Tokens.swift */; };
+		AA000004 /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000004 /* Icons.swift */; };
+		AA000005 /* FiniMascot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000005 /* FiniMascot.swift */; };
+		AA000006 /* CatIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000006 /* CatIcon.swift */; };
+		AA000007 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000007 /* StatusBarView.swift */; };
+		AA000008 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000008 /* AppState.swift */; };
+		AA000009 /* Cats.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000009 /* Cats.swift */; };
+		AA000010 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000010 /* MainTabView.swift */; };
+		AA000011 /* OnboardingFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000011 /* OnboardingFlow.swift */; };
+		AA000012 /* ObWelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000012 /* ObWelcomeView.swift */; };
+		AA000013 /* ObGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000013 /* ObGoalView.swift */; };
+		AA000014 /* ObIncomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000014 /* ObIncomeView.swift */; };
+		AA000015 /* ObPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000015 /* ObPlanView.swift */; };
+		AA000016 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000016 /* ChatView.swift */; };
+		AA000017 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000017 /* InsightsView.swift */; };
+		AA000018 /* DataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000018 /* DataView.swift */; };
+		AA000019 /* TxDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000019 /* TxDetailSheet.swift */; };
+		AA000020 /* AddTxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000020 /* AddTxView.swift */; };
+		AA000021 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000021 /* PaywallView.swift */; };
+		AA000022 /* CouplesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000022 /* CouplesView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AB000001 /* FiniApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiniApp.swift; sourceTree = "<group>"; };
+		AB000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AB000003 /* Tokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokens.swift; sourceTree = "<group>"; };
+		AB000004 /* Icons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
+		AB000005 /* FiniMascot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiniMascot.swift; sourceTree = "<group>"; };
+		AB000006 /* CatIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatIcon.swift; sourceTree = "<group>"; };
+		AB000007 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
+		AB000008 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		AB000009 /* Cats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cats.swift; sourceTree = "<group>"; };
+		AB000010 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		AB000011 /* OnboardingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlow.swift; sourceTree = "<group>"; };
+		AB000012 /* ObWelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObWelcomeView.swift; sourceTree = "<group>"; };
+		AB000013 /* ObGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObGoalView.swift; sourceTree = "<group>"; };
+		AB000014 /* ObIncomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObIncomeView.swift; sourceTree = "<group>"; };
+		AB000015 /* ObPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObPlanView.swift; sourceTree = "<group>"; };
+		AB000016 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		AB000017 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		AB000018 /* DataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataView.swift; sourceTree = "<group>"; };
+		AB000019 /* TxDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TxDetailSheet.swift; sourceTree = "<group>"; };
+		AB000020 /* AddTxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTxView.swift; sourceTree = "<group>"; };
+		AB000021 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		AB000022 /* CouplesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CouplesView.swift; sourceTree = "<group>"; };
+		ACAPP001 /* Fini.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fini.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		ACFW0001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		ACGRP000 /* Fini */ = {
+			isa = PBXGroup;
+			children = (
+				ACGRP001 /* Design */,
+				ACGRP002 /* Models */,
+				ACGRP003 /* Screens */,
+				AB000001 /* FiniApp.swift */,
+				AB000002 /* ContentView.swift */,
+			);
+			path = Fini;
+			sourceTree = "<group>";
+		};
+		ACGRP001 /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				AB000003 /* Tokens.swift */,
+				AB000004 /* Icons.swift */,
+				AB000005 /* FiniMascot.swift */,
+				AB000006 /* CatIcon.swift */,
+				AB000007 /* StatusBarView.swift */,
+			);
+			path = Design;
+			sourceTree = "<group>";
+		};
+		ACGRP002 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AB000008 /* AppState.swift */,
+				AB000009 /* Cats.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		ACGRP003 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				AB000010 /* MainTabView.swift */,
+				ACGRP004 /* Onboarding */,
+				ACGRP005 /* Chat */,
+				ACGRP006 /* Insights */,
+				ACGRP007 /* Data */,
+				ACGRP008 /* Sheets */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		ACGRP004 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				AB000011 /* OnboardingFlow.swift */,
+				AB000012 /* ObWelcomeView.swift */,
+				AB000013 /* ObGoalView.swift */,
+				AB000014 /* ObIncomeView.swift */,
+				AB000015 /* ObPlanView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		ACGRP005 /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				AB000016 /* ChatView.swift */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
+		ACGRP006 /* Insights */ = {
+			isa = PBXGroup;
+			children = (
+				AB000017 /* InsightsView.swift */,
+			);
+			path = Insights;
+			sourceTree = "<group>";
+		};
+		ACGRP007 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				AB000018 /* DataView.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		ACGRP008 /* Sheets */ = {
+			isa = PBXGroup;
+			children = (
+				AB000019 /* TxDetailSheet.swift */,
+				AB000020 /* AddTxView.swift */,
+				AB000021 /* PaywallView.swift */,
+				AB000022 /* CouplesView.swift */,
+			);
+			path = Sheets;
+			sourceTree = "<group>";
+		};
+		ACGRPROOT /* = */ = {
+			isa = PBXGroup;
+			children = (
+				ACGRP000 /* Fini */,
+				ACGRPPROD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		ACGRPPROD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				ACAPP001 /* Fini.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		ACTGT001 /* Fini */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ACBCL001 /* Build configuration list for PBXNativeTarget "Fini" */;
+			buildPhases = (
+				ACSRC001 /* Sources */,
+				ACFW0001 /* Frameworks */,
+				ACRES001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Fini;
+			productName = Fini;
+			productReference = ACAPP001 /* Fini.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		ACPRJ001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					ACTGT001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = ACBCL000 /* Build configuration list for PBXProject "Fini" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = he;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				he,
+				Base,
+			);
+			mainGroup = ACGRPROOT;
+			productRefGroup = ACGRPPROD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				ACTGT001 /* Fini */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		ACRES001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		ACSRC001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA000001 /* FiniApp.swift in Sources */,
+				AA000002 /* ContentView.swift in Sources */,
+				AA000003 /* Tokens.swift in Sources */,
+				AA000004 /* Icons.swift in Sources */,
+				AA000005 /* FiniMascot.swift in Sources */,
+				AA000006 /* CatIcon.swift in Sources */,
+				AA000007 /* StatusBarView.swift in Sources */,
+				AA000008 /* AppState.swift in Sources */,
+				AA000009 /* Cats.swift in Sources */,
+				AA000010 /* MainTabView.swift in Sources */,
+				AA000011 /* OnboardingFlow.swift in Sources */,
+				AA000012 /* ObWelcomeView.swift in Sources */,
+				AA000013 /* ObGoalView.swift in Sources */,
+				AA000014 /* ObIncomeView.swift in Sources */,
+				AA000015 /* ObPlanView.swift in Sources */,
+				AA000016 /* ChatView.swift in Sources */,
+				AA000017 /* InsightsView.swift in Sources */,
+				AA000018 /* DataView.swift in Sources */,
+				AA000019 /* TxDetailSheet.swift in Sources */,
+				AA000020 /* AddTxView.swift in Sources */,
+				AA000021 /* PaywallView.swift in Sources */,
+				AA000022 /* CouplesView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		ACBCF001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		ACBCF002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		ACBCF003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				BUNDLE_IDENTIFIER_PREFIX = com.fini;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fini.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		ACBCF004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				BUNDLE_IDENTIFIER_PREFIX = com.fini;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fini.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		ACBCL000 /* Build configuration list for PBXProject "Fini" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ACBCF001 /* Debug */,
+				ACBCF002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ACBCL001 /* Build configuration list for PBXNativeTarget "Fini" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ACBCF003 /* Debug */,
+				ACBCF004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = ACPRJ001 /* Project object */;
+}

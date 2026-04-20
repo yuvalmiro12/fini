@@ -1,0 +1,53 @@
+export const FINI = {
+  colors: {
+    cream: '#F7F5E8',
+    creamDark: '#EFEADA',
+    ink: '#1F1A15',
+    inkSoft: '#4A4237',
+    inkMute: '#8A8070',
+    line: 'rgba(31,26,21,0.08)',
+    lineSoft: 'rgba(31,26,21,0.05)',
+    rose: '#FDDDE8',
+    roseDeep: '#F9C6D7',
+    pink: '#C85A8A',
+    mint: '#D6EEE0',
+    mintDeep: '#BEE3CB',
+    green: '#5B8E6F',
+    greenSoft: '#A7C9B4',
+    lavender: '#E8ECFF',
+    lavenderDeep: '#D4DBFA',
+    blue: '#5A6FB8',
+    income: '#5B8E6F',
+    incomeTint: '#DDEEDF',
+    expense: '#D47070',
+    expenseTint: '#FADEDC',
+    gold: '#C9A24D',
+    goldTint: '#F3E7C7',
+  },
+  font: {
+    family: "'Rubik', system-ui, sans-serif",
+    weights: {
+      regular: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700,
+    },
+  },
+  radius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    full: 9999,
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    xxl: 24,
+  },
+} as const
+
+export type FiniColors = keyof typeof FINI.colors

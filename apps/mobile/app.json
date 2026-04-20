@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "פיני",
+    "slug": "fini",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": { "backgroundColor": "#FDDDE8" },
+    "ios": { "supportsTablet": false, "bundleIdentifier": "com.fini.app" },
+    "android": { "package": "com.fini.app", "adaptiveIcon": { "backgroundColor": "#FDDDE8" } }
+  }
+}
