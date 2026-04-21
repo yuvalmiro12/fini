@@ -149,6 +149,14 @@ export function Icon({ name, size = 24, color = '#1F1A15', style }: IconProps) {
         return <path {...strokeProps} d="M5 12l4 4 10-10" />
       case 'close':
         return <path {...strokeProps} d="M6 6l12 12M18 6L6 18" />
+      case 'chevron-down':
+        return <path {...strokeProps} d="M6 9l6 6 6-6" />
+      case 'chevron-up':
+        return <path {...strokeProps} d="M6 15l6-6 6 6" />
+      case 'chevron-right':
+        return <path {...strokeProps} d="M9 6l6 6-6 6" />
+      case 'chevron-left':
+        return <path {...strokeProps} d="M15 6l-6 6 6 6" />
       case 'dots':
         return (
           <>

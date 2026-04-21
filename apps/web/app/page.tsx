@@ -1,17 +1,18 @@
 'use client'
-import React, { useState, useEffect } from 'react'
-import { ObWelcome, ObGoal, ObIncome, ObPlan } from '../components/screens/onboarding'
+import React, { useState, useEffect, useRef } from 'react'
+import { ObWelcome, ObGoal, ObIncome, ObPlan, ObTrial } from '../components/screens/onboarding'
 import { ChatMain } from '../components/screens/chat'
 import { InsightsMain, SavingsGoal } from '../components/screens/insights'
 import { DataMain, TransactionsList } from '../components/screens/data'
 import { TxDetailSheet, AddTx, Paywall, Couples } from '../components/screens/sheets'
 import { Settings } from '../components/screens/settings'
 import { NotificationsScreen } from '../components/screens/notifications'
+import { Toast, ToastData, ToastType } from '../components/ui/toast'
 import { TRANSACTIONS, SAVINGS_GOAL } from '../lib/seed'
 import type { Transaction, SavingsGoal as SavingsGoalType } from '../lib/seed'
 
 export type Screen =
-  | 'obWelcome' | 'obGoal' | 'obIncome' | 'obPlan'
+  | 'obWelcome' | 'obGoal' | 'obIncome' | 'obPlan' | 'obTrial'
   | 'chat' | 'insights' | 'savingsGoal' | 'data'
   | 'transactions' | 'txDetail' | 'addTx' | 'paywall'
   | 'couples' | 'settings' | 'notifications'
@@ -23,7 +24,23 @@ export default function Page() {
   const [selectedTxId, setSelectedTxId] = useState<string | null>(null)
   const [savingsGoal, setSavingsGoal] = useState<SavingsGoalType>(SAVINGS_GOAL)
   const [plan, setPlan] = useState<'free' | 'pro' | 'proplus'>('free')
+  const [pendingPlan, setPendingPlan] = useState<'free' | 'pro' | 'proplus'>('pro')
   const [userName, setUserName] = useState('נועה')
+  const [hydrated, setHydrated] = useState(false)
+  const [toast, setToast] = useState<ToastData | null>(null)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const showToast = (message: string, type: ToastType = 'success') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
+    setToast({ id, message, type })
+    toastTimerRef.current = setTimeout(() => setToast(null), 2500)
+  }
+
+  const dismissToast = () => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    setToast(null)
+  }
 
   useEffect(() => {
     try {
@@ -39,6 +56,13 @@ export default function Page() {
       const savedName = localStorage.getItem('userName')
       if (savedName) setUserName(savedName)
     } catch {}
+    setHydrated(true)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    }
   }, [])
 
   const nav = (s: string) => {
@@ -58,15 +82,20 @@ export default function Page() {
     try { localStorage.setItem('transactions', JSON.stringify(txs)) } catch {}
   }
 
-  const addTx = (tx: Transaction) => saveTxs([tx, ...transactions])
+  const addTx = (tx: Transaction) => {
+    saveTxs([tx, ...transactions])
+    showToast('עסקה נוספה', 'success')
+  }
 
   const deleteTx = (id: string) => {
     saveTxs(transactions.filter(t => t.id !== id))
+    showToast('עסקה נמחקה', 'info')
     nav('transactions')
   }
 
   const updateTx = (updated: Transaction) => {
     saveTxs(transactions.map(t => t.id === updated.id ? updated : t))
+    showToast('עסקה עודכנה', 'success')
   }
 
   const selectTx = (id: string) => {
@@ -77,6 +106,7 @@ export default function Page() {
   const updateGoal = (goal: SavingsGoalType) => {
     setSavingsGoal(goal)
     try { localStorage.setItem('savingsGoal', JSON.stringify(goal)) } catch {}
+    showToast('היעד עודכן', 'success')
   }
 
   const selectPlan = (p: 'free' | 'pro' | 'proplus') => {
@@ -88,6 +118,7 @@ export default function Page() {
   const updateUserName = (name: string) => {
     setUserName(name)
     try { localStorage.setItem('userName', name) } catch {}
+    showToast('השם עודכן', 'success')
   }
 
   const resetApp = () => {
@@ -97,6 +128,7 @@ export default function Page() {
     setPlan('free')
     setUserName('נועה')
     setScreen('obWelcome')
+    showToast('האפליקציה אופסה', 'info')
   }
 
   const renderScreen = () => {
@@ -104,7 +136,8 @@ export default function Page() {
       case 'obWelcome': return <ObWelcome nav={nav} />
       case 'obGoal':    return <ObGoal nav={nav} />
       case 'obIncome':  return <ObIncome nav={nav} />
-      case 'obPlan':    return <ObPlan nav={nav} onSelectPlan={selectPlan} />
+      case 'obPlan':    return <ObPlan nav={nav} onSelectPlan={selectPlan} onPickPlan={setPendingPlan} />
+      case 'obTrial':   return <ObTrial nav={nav} onSelectPlan={selectPlan} pendingPlan={pendingPlan} />
       case 'chat':      return <ChatMain nav={nav} transactions={transactions} userName={userName} />
       case 'insights':  return <InsightsMain nav={nav} savingsGoal={savingsGoal} />
       case 'savingsGoal': return <SavingsGoal nav={nav} savingsGoal={savingsGoal} onUpdate={updateGoal} />
@@ -141,7 +174,39 @@ export default function Page() {
   return (
     <main style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', minHeight: '100vh', background: '#EFEADA', padding: '0' }}>
       <div style={{ width: '100%', maxWidth: 390, minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F7F5E8', position: 'relative', overflow: 'hidden', boxShadow: '0 0 40px rgba(31,26,21,0.12)' }}>
-        {renderScreen()}
+        {hydrated ? (
+          renderScreen()
+        ) : (
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#F7F5E8',
+              fontFamily: "'Rubik', system-ui, sans-serif",
+            }}
+          >
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: '50%',
+                background: '#1F1A15',
+                color: '#F7F5E8',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 22,
+                fontWeight: 700,
+                letterSpacing: -0.5,
+              }}
+            >
+              F
+            </div>
+          </div>
+        )}
+        <Toast toast={toast} onDismiss={dismissToast} />
       </div>
     </main>
   )

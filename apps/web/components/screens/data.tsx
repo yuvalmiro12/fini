@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { Icon } from '../ui/icon'
 import { CatIcon } from '../ui/cat-icon'
+import { FiniAvatar } from '../ui/fini-mascot'
 import { TabBar } from '../ui/tab-bar'
 import { StatusBar } from '../ui/status-bar'
 import { CATS } from '../../lib/cats'
@@ -230,9 +231,61 @@ export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps)
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 100px' }}>
         {Object.keys(groups).length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 20px', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 15, color: '#8A8070' }}>
-            {searchText ? 'לא נמצאו תוצאות' : 'אין עסקאות עדיין'}
-          </div>
+          searchText || activeFilter !== 'הכל' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '60px 20px', textAlign: 'center' }}>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="search" size={26} color="#8A8070" />
+              </div>
+              <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 15, fontWeight: 600, color: '#1F1A15' }}>
+                {searchText ? 'לא נמצאו תוצאות' : 'אין עסקאות בסינון הזה'}
+              </div>
+              <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, color: '#8A8070', maxWidth: 260, lineHeight: 1.5 }}>
+                {searchText ? `לא מצאתי עסקה שמתאימה ל-"${searchText}".` : 'נסה להחליף סינון או להוסיף עסקה חדשה.'}
+              </div>
+              {searchText && (
+                <button
+                  onClick={() => setSearchText('')}
+                  style={{ marginTop: 6, padding: '8px 18px', borderRadius: 99, border: '1.5px solid rgba(90,111,184,0.4)', background: 'rgba(255,255,255,0.7)', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, fontWeight: 500, color: '#5A6FB8', cursor: 'pointer' }}
+                >
+                  נקה חיפוש
+                </button>
+              )}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, padding: '48px 20px 20px', textAlign: 'center' }}>
+              <FiniAvatar size={72} mood="happy" />
+              <div>
+                <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 18, fontWeight: 700, color: '#1F1A15', marginBottom: 4 }}>
+                  עדיין אין עסקאות
+                </div>
+                <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, color: '#8A8070', maxWidth: 280, lineHeight: 1.5 }}>
+                  הוסף את הראשונה כדי שאתחיל לעזור לך לעקוב ולחסוך.
+                </div>
+              </div>
+              <button
+                onClick={() => nav('addTx')}
+                style={{
+                  marginTop: 4,
+                  padding: '12px 22px',
+                  borderRadius: 14,
+                  border: 'none',
+                  background: '#C85A8A',
+                  color: '#FFFFFF',
+                  fontFamily: "'Rubik', system-ui, sans-serif",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 6px 18px rgba(200,90,138,0.35)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <Icon name="plus" size={16} color="#FFFFFF" />
+                הוסף עסקה ראשונה
+              </button>
+            </div>
+          )
         ) : (
           Object.entries(groups).map(([date, txs]) => (
             <div key={date} style={{ marginBottom: 14 }}>

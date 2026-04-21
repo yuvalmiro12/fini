@@ -168,6 +168,182 @@ function InsightCard({ data }: { data: { title: string; body: string; bars: numb
   )
 }
 
+// ── Daily Brief ────────────────────────────────────────────────
+
+function DailyBrief({ transactions, userName, onAsk }: { transactions: Transaction[]; userName: string; onAsk: (q: string) => void }) {
+  const [expanded, setExpanded] = useState(true)
+
+  // Latest transaction date = "today" in the data
+  const dates = transactions.map(t => t.date).sort().reverse()
+  const today = dates[0]
+  const todayTxs = transactions.filter(t => t.date === today && t.type === 'expense')
+  const todaySpent = todayTxs.reduce((s, t) => s + t.amount, 0)
+  const biggest = [...todayTxs].sort((a, b) => b.amount - a.amount)[0]
+
+  // Previous day comparison
+  const uniqueDays = Array.from(new Set(dates))
+  const prevDay = uniqueDays[1]
+  const prevTxs = transactions.filter(t => t.date === prevDay && t.type === 'expense')
+  const prevSpent = prevTxs.reduce((s, t) => s + t.amount, 0)
+  const delta = prevSpent > 0 ? Math.round(((todaySpent - prevSpent) / prevSpent) * 100) : 0
+  const deltaPositive = delta > 0
+
+  // Hebrew day name
+  const dayFmt = new Intl.DateTimeFormat('he-IL', { weekday: 'long', day: 'numeric', month: 'long' })
+  let dateLabel = 'היום'
+  try {
+    if (today) dateLabel = dayFmt.format(new Date(today))
+  } catch {}
+
+  const quickQs = ['כמה הוצאתי היום?', 'מה ההוצאה הגדולה שלי?', 'מה נשאר לי החודש?']
+
+  const greetHour = new Date().getHours()
+  const greet = greetHour < 12 ? 'בוקר טוב' : greetHour < 18 ? 'צהריים טובים' : 'ערב טוב'
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      style={{
+        background: 'linear-gradient(135deg, #FFFFFF 0%, rgba(253,221,232,0.55) 100%)',
+        borderRadius: 18,
+        padding: expanded ? '14px 16px 16px' : '12px 16px',
+        boxShadow: '0 4px 16px rgba(31,26,21,0.08)',
+        border: '1.5px solid rgba(200,90,138,0.15)',
+        direction: 'rtl',
+      }}
+    >
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <FiniAvatar size={34} mood="happy" />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, fontWeight: 700, color: '#1F1A15' }}>
+            {greet}, {userName} ✨
+          </div>
+          <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: '#8A8070' }}>
+            הסיכום של {dateLabel}
+          </div>
+        </div>
+        <button
+          onClick={() => setExpanded(e => !e)}
+          aria-label={expanded ? 'מזער' : 'הרחב'}
+          style={{
+            background: 'rgba(200,90,138,0.1)',
+            border: 'none',
+            borderRadius: '50%',
+            width: 28,
+            height: 28,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.25s ease',
+          }}
+        >
+          <Icon name="chevron-down" size={14} color="#C85A8A" />
+        </button>
+      </div>
+
+      {expanded && (
+        <>
+          {/* Stats row */}
+          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+            <div style={{ flex: 1.2, background: 'rgba(255,255,255,0.9)', borderRadius: 12, padding: '10px 12px' }}>
+              <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 10, color: '#8A8070', fontWeight: 500, marginBottom: 2 }}>הוצאות</div>
+              <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 17, fontWeight: 700, color: '#1F1A15', lineHeight: 1.1 }}>
+                ₪{todaySpent.toLocaleString()}
+              </div>
+              <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 10, color: '#8A8070', marginTop: 2 }}>
+                {todayTxs.length} {todayTxs.length === 1 ? 'עסקה' : 'עסקאות'}
+              </div>
+            </div>
+
+            <div style={{ flex: 1, background: 'rgba(255,255,255,0.9)', borderRadius: 12, padding: '10px 12px' }}>
+              <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 10, color: '#8A8070', fontWeight: 500, marginBottom: 2 }}>מול אתמול</div>
+              <div
+                style={{
+                  fontFamily: "'Rubik', system-ui, sans-serif",
+                  fontSize: 17,
+                  fontWeight: 700,
+                  color: deltaPositive ? '#D47070' : '#5B8E6F',
+                  lineHeight: 1.1,
+                }}
+              >
+                {deltaPositive ? '+' : ''}{delta}%
+              </div>
+              <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 10, color: '#8A8070', marginTop: 2 }}>
+                ₪{prevSpent.toLocaleString()} אתמול
+              </div>
+            </div>
+          </div>
+
+          {/* Insight line */}
+          {biggest && (
+            <div
+              style={{
+                marginTop: 10,
+                padding: '8px 12px',
+                background: 'rgba(200,90,138,0.08)',
+                borderRadius: 12,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              <Icon name="sparkle" size={13} color="#C9A24D" />
+              <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, color: '#1F1A15', lineHeight: 1.4, flex: 1 }}>
+                הגדולה היום: <strong>{biggest.title}</strong> · ₪{biggest.amount.toLocaleString()}
+              </div>
+            </div>
+          )}
+
+          {todayTxs.length === 0 && (
+            <div
+              style={{
+                marginTop: 10,
+                padding: '8px 12px',
+                background: 'rgba(91,142,111,0.1)',
+                borderRadius: 12,
+                fontFamily: "'Rubik', system-ui, sans-serif",
+                fontSize: 12,
+                color: '#1F1A15',
+                lineHeight: 1.4,
+              }}
+            >
+              ✨ יום נקי — עדיין לא נרשמו הוצאות היום.
+            </div>
+          )}
+
+          {/* Quick questions */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+            {quickQs.map((q, i) => (
+              <button
+                key={i}
+                onClick={() => onAsk(q)}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: 99,
+                  border: '1px solid rgba(200,90,138,0.3)',
+                  background: 'rgba(255,255,255,0.8)',
+                  fontFamily: "'Rubik', system-ui, sans-serif",
+                  fontSize: 11,
+                  fontWeight: 500,
+                  color: '#C85A8A',
+                  cursor: 'pointer',
+                }}
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </motion.div>
+  )
+}
+
 function TypingIndicator() {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, direction: 'rtl' }}>
@@ -221,34 +397,39 @@ function UBubble({ text }: { text: string }) {
   )
 }
 
-function Composer({ onSend, onAddTx }: { onSend: (text: string) => void; onAddTx: () => void }) {
+function Composer({ onSend, onAddTx, disabled = false }: { onSend: (text: string) => void; onAddTx: () => void; disabled?: boolean }) {
   const [text, setText] = useState('')
 
+  const canSend = !disabled && !!text.trim()
+
   const handleSend = () => {
-    if (text.trim()) { onSend(text.trim()); setText('') }
+    if (canSend) { onSend(text.trim()); setText('') }
   }
 
   return (
     <div style={{ padding: '10px 16px 20px', display: 'flex', alignItems: 'center', gap: 8, direction: 'rtl', background: 'rgba(253,221,232,0.8)', backdropFilter: 'blur(12px)' }}>
       <button
         onClick={onAddTx}
+        disabled={disabled}
         title="הוסף עסקה"
-        style={{ background: 'rgba(255,255,255,0.8)', border: 'none', borderRadius: '50%', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(31,26,21,0.1)' }}
+        style={{ background: 'rgba(255,255,255,0.8)', border: 'none', borderRadius: '50%', width: 36, height: 36, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(31,26,21,0.1)' }}
       >
         <Icon name="plus" size={20} color="#C85A8A" />
       </button>
-      <div style={{ flex: 1, background: 'rgba(255,255,255,0.9)', borderRadius: 999, padding: '10px 16px', display: 'flex', alignItems: 'center' }}>
+      <div style={{ flex: 1, background: 'rgba(255,255,255,0.9)', borderRadius: 999, padding: '10px 16px', display: 'flex', alignItems: 'center', opacity: disabled ? 0.7 : 1 }}>
         <input
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
-          placeholder="שאל את פיני..."
+          disabled={disabled}
+          placeholder={disabled ? 'פיני כותב...' : 'שאל את פיני...'}
           style={{ flex: 1, border: 'none', background: 'transparent', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, color: '#1F1A15', outline: 'none', direction: 'rtl' }}
         />
       </div>
       <button
         onClick={handleSend}
-        style={{ width: 40, height: 40, borderRadius: '50%', background: text.trim() ? '#C85A8A' : 'rgba(200,90,138,0.3)', border: 'none', cursor: text.trim() ? 'pointer' : 'default', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: text.trim() ? '0 4px 12px rgba(200,90,138,0.3)' : 'none', transition: 'all 0.2s' }}
+        disabled={!canSend}
+        style={{ width: 40, height: 40, borderRadius: '50%', background: canSend ? '#C85A8A' : 'rgba(200,90,138,0.3)', border: 'none', cursor: canSend ? 'pointer' : 'default', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: canSend ? '0 4px 12px rgba(200,90,138,0.3)' : 'none', transition: 'all 0.2s' }}
       >
         <Icon name="send" size={18} color="#FFFFFF" />
       </button>
@@ -268,6 +449,7 @@ export function ChatMain({ nav, transactions, userName = 'נועה' }: ScreenPro
   }, [messages, isTyping])
 
   const handleSend = (text: string) => {
+    if (isTyping) return
     const userMsg: ChatMessage = { id: `u${Date.now()}`, role: 'user', type: 'text', text }
     setMessages(prev => [...prev, userMsg])
     setIsTyping(true)
@@ -283,6 +465,7 @@ export function ChatMain({ nav, transactions, userName = 'נועה' }: ScreenPro
       <StatusBar />
       <ChatHeader nav={nav} />
       <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 120px', display: 'flex', flexDirection: 'column', gap: 12, direction: 'rtl' }}>
+        <DailyBrief transactions={transactions} userName={userName} onAsk={handleSend} />
         <DateDivider date="היום" />
         {messages.map(msg => {
           if (msg.role === 'fini') {
@@ -301,7 +484,7 @@ export function ChatMain({ nav, transactions, userName = 'נועה' }: ScreenPro
         })}
         {isTyping && <TypingIndicator />}
       </div>
-      <Composer onSend={handleSend} onAddTx={() => nav('addTx')} />
+      <Composer onSend={handleSend} onAddTx={() => nav('addTx')} disabled={isTyping} />
       <TabBar active="chat" onTab={t => nav(t)} />
     </div>
   )

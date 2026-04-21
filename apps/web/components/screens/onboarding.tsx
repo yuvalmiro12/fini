@@ -6,6 +6,8 @@ import { Icon } from '../ui/icon'
 interface ScreenProps {
   nav: (screen: string) => void
   onSelectPlan?: (plan: 'free' | 'pro' | 'proplus') => void
+  pendingPlan?: 'free' | 'pro' | 'proplus'
+  onPickPlan?: (plan: 'free' | 'pro' | 'proplus') => void
 }
 
 function ProgressDots({ total, current }: { total: number; current: number }) {
@@ -135,7 +137,7 @@ export function ObWelcome({ nav }: ScreenProps) {
           </p>
         </div>
 
-        <ProgressDots total={4} current={0} />
+        <ProgressDots total={5} current={0} />
       </div>
 
       <PinkButton label="בואו נתחיל!" onClick={() => nav('obGoal')} />
@@ -204,7 +206,7 @@ export function ObGoal({ nav }: ScreenProps) {
         </div>
 
         <div style={{ marginTop: 'auto' }}>
-          <ProgressDots total={4} current={1} />
+          <ProgressDots total={5} current={1} />
         </div>
       </div>
 
@@ -319,7 +321,7 @@ export function ObIncome({ nav }: ScreenProps) {
         </div>
 
         <div style={{ marginTop: 'auto' }}>
-          <ProgressDots total={4} current={2} />
+          <ProgressDots total={5} current={2} />
         </div>
       </div>
 
@@ -358,7 +360,7 @@ const PLANS = [
   },
 ]
 
-export function ObPlan({ nav, onSelectPlan }: ScreenProps) {
+export function ObPlan({ nav, onSelectPlan, onPickPlan }: ScreenProps) {
   const [selected, setSelected] = useState('pro')
 
   return (
@@ -434,12 +436,24 @@ export function ObPlan({ nav, onSelectPlan }: ScreenProps) {
         </div>
 
         <div style={{ marginTop: 'auto' }}>
-          <ProgressDots total={4} current={3} />
+          <ProgressDots total={5} current={3} />
         </div>
       </div>
 
       <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <PinkButton label={PLANS.find((p) => p.id === selected)?.cta || 'המשך'} onClick={() => { if (onSelectPlan) onSelectPlan(selected as 'free' | 'pro' | 'proplus'); else nav('chat') }} />
+        <PinkButton
+          label={PLANS.find((p) => p.id === selected)?.cta || 'המשך'}
+          onClick={() => {
+            const plan = selected as 'free' | 'pro' | 'proplus'
+            if (plan === 'free') {
+              if (onSelectPlan) onSelectPlan('free')
+              else nav('chat')
+            } else {
+              if (onPickPlan) onPickPlan(plan)
+              nav('obTrial')
+            }
+          }}
+        />
         <button
           onClick={() => { if (onSelectPlan) onSelectPlan('free'); else nav('chat') }}
           style={{
@@ -453,6 +467,155 @@ export function ObPlan({ nav, onSelectPlan }: ScreenProps) {
           }}
         >
           דלג לעכשיו
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── ObTrial — Step 5/5: 7-day free trial confirmation ──────────
+
+const TRIAL_PERKS = [
+  { icon: '✨', title: '7 ימים חינם', body: 'גישה מלאה לכל פיני' },
+  { icon: '🔔', title: 'תזכורת יום לפני הסיום', body: 'לא תופתע/י מחיוב' },
+  { icon: '🚫', title: 'ללא כרטיס אשראי', body: 'אפשר לבטל בכל רגע' },
+]
+
+const TRIAL_TIMELINE = [
+  { day: 'היום', title: 'נסיון מלא', body: 'גישה לכל התכונות של פיני' },
+  { day: 'יום 6', title: 'תזכורת', body: 'נשלח לך התראה לפני הסיום' },
+  { day: 'יום 7', title: 'בחירה', body: 'להמשיך בתשלום או לעבור לחינמי' },
+]
+
+export function ObTrial({ nav, onSelectPlan, pendingPlan }: ScreenProps) {
+  const plan = pendingPlan ?? 'pro'
+  const planLabel = plan === 'proplus' ? 'Pro+' : 'Pro'
+  const planPrice = plan === 'proplus' ? '₪59' : '₪29'
+
+  return (
+    <div
+      style={{
+        flex: 1,
+        background: '#FDDDE8',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '0 24px 32px',
+        position: 'relative',
+        overflow: 'hidden',
+        direction: 'rtl',
+      }}
+    >
+      {/* Aurora glows */}
+      <div style={{ position: 'absolute', top: -70, right: -70, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: 120, left: -60, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,90,138,0.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 20, overflowY: 'auto' }}>
+        {/* Hero */}
+        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+          <FiniMascot size={100} mood="happy" />
+          <div>
+            <h2 style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 22, fontWeight: 700, color: '#1F1A15', margin: 0, marginBottom: 4 }}>
+              נסה את {planLabel} חינם
+            </h2>
+            <p style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, color: '#4A4237', margin: 0, lineHeight: 1.5 }}>
+              7 ימים על חשבוננו. ללא כרטיס אשראי.
+            </p>
+          </div>
+        </div>
+
+        {/* Perks */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+          {TRIAL_PERKS.map((p, i) => (
+            <div
+              key={i}
+              style={{
+                background: 'rgba(255,255,255,0.85)',
+                borderRadius: 14,
+                padding: '12px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                border: '1.5px solid rgba(31,26,21,0.06)',
+              }}
+            >
+              <div style={{ fontSize: 22, width: 32, textAlign: 'center' }}>{p.icon}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, fontWeight: 600, color: '#1F1A15' }}>{p.title}</div>
+                <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, color: '#8A8070', lineHeight: 1.4 }}>{p.body}</div>
+              </div>
+              <Icon name="check" size={18} color="#5B8E6F" />
+            </div>
+          ))}
+        </div>
+
+        {/* Timeline */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #FFFFFF 0%, rgba(253,221,232,0.6) 100%)',
+            borderRadius: 18,
+            padding: 16,
+            boxShadow: '0 4px 16px rgba(31,26,21,0.06)',
+            marginTop: 4,
+          }}
+        >
+          <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, fontWeight: 700, color: '#C85A8A', marginBottom: 10 }}>
+            איך זה עובד
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {TRIAL_TIMELINE.map((t, i) => (
+              <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <div
+                  style={{
+                    minWidth: 56,
+                    fontFamily: "'Rubik', system-ui, sans-serif",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: '#C85A8A',
+                    background: 'rgba(200,90,138,0.1)',
+                    borderRadius: 99,
+                    padding: '4px 10px',
+                    textAlign: 'center',
+                  }}
+                >
+                  {t.day}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, fontWeight: 600, color: '#1F1A15' }}>{t.title}</div>
+                  <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, color: '#8A8070', lineHeight: 1.4 }}>{t.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Price note */}
+        <div style={{ textAlign: 'center', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, color: '#8A8070', marginTop: 4 }}>
+          אחרי 7 ימים: {planPrice}/חודש. אפשר לבטל בכל רגע מההגדרות.
+        </div>
+
+        <div style={{ marginTop: 'auto', paddingTop: 8 }}>
+          <ProgressDots total={5} current={4} />
+        </div>
+      </div>
+
+      <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <PinkButton
+          label={`התחל את ${planLabel} · 7 ימים חינם`}
+          onClick={() => { if (onSelectPlan) onSelectPlan(plan); else nav('chat') }}
+        />
+        <button
+          onClick={() => { if (onSelectPlan) onSelectPlan('free'); else nav('chat') }}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            fontFamily: "'Rubik', system-ui, sans-serif",
+            fontSize: 13,
+            color: '#8A8070',
+            cursor: 'pointer',
+            padding: '8px',
+          }}
+        >
+          אמשיך בחינמי בינתיים
         </button>
       </div>
     </div>
