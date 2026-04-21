@@ -90,6 +90,7 @@ apps/mobile/android/
 
 # ─── Cowork / local session scratch ─────────────────────────────
 _tmp_*
+.npmrc
 
 # ─── Package managers (we use pnpm) ─────────────────────────────
 package-lock.json
