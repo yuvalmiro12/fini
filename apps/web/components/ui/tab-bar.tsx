@@ -17,6 +17,7 @@ const TABS: { name: TabName; label: string; icon: string; accent: string }[] = [
 export function TabBar({ active, onTab }: TabBarProps) {
   return (
     <div
+      className="fini-mobile-tabbar"
       style={{
         position: 'absolute',
         bottom: 0,

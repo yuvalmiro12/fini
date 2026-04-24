@@ -1,9 +1,12 @@
 'use client'
 import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Icon } from '../ui/icon'
 import { FiniAvatar } from '../ui/fini-mascot'
 import { TabBar } from '../ui/tab-bar'
 import { StatusBar } from '../ui/status-bar'
+import { AddInsightSheet } from './add-insight-sheet'
+import { DEFAULT_INSIGHTS, type Insight } from '../../lib/insight-templates'
 import type { SavingsGoal as SavingsGoalType } from '../../lib/seed'
 
 interface InsightsProps {
@@ -17,18 +20,18 @@ interface GoalProps {
   onUpdate: (goal: SavingsGoalType) => void
 }
 
-const INSIGHT_ROWS = [
-  { id: 'i1', icon: 'trend',  title: 'הוצאות אוכל',  subtitle: 'ירדו ב-8% מהחודש שעבר',    tint: '#D6EEE0', ink: '#5B8E6F', value: '-8%',  positive: true  },
-  { id: 'i2', icon: 'cart',   title: 'קניות',          subtitle: 'עלו ב-15% — מעל התקציב',   tint: '#FADEDC', ink: '#D47070', value: '+15%', positive: false },
-  { id: 'i3', icon: 'bolt',   title: 'חשבונות',        subtitle: 'גבוה ב-23% מהממוצע',       tint: '#F3E7C7', ink: '#C9A24D', value: '+23%', positive: false },
-  { id: 'i4', icon: 'piggy',  title: 'חיסכון',         subtitle: 'על המסלול לעמוד ביעד!',    tint: '#D4DBFA', ink: '#5A6FB8', value: '56%',  positive: true  },
-]
-
 export function InsightsMain({ nav, savingsGoal }: InsightsProps) {
   const pct = Math.round((savingsGoal.current / savingsGoal.target) * 100)
 
+  const [insights, setInsights] = useState<Insight[]>(DEFAULT_INSIGHTS)
+  const [editMode, setEditMode] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
+
+  const handleAdd = (ins: Insight) => setInsights(prev => [...prev, ins])
+  const handleRemove = (id: string) => setInsights(prev => prev.filter(i => i.id !== id))
+
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#D6EEE0', direction: 'rtl', overflow: 'hidden' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#D6EEE0', direction: 'rtl', overflow: 'hidden', position: 'relative' }}>
       <StatusBar />
       <div style={{ padding: '4px 20px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 24, fontWeight: 700, color: '#1F1A15' }}>תובנות</div>
@@ -45,8 +48,12 @@ export function InsightsMain({ nav, savingsGoal }: InsightsProps) {
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 100px' }}>
         {/* Savings hero */}
-        <div
+        <motion.div
           onClick={() => nav('savingsGoal')}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          whileTap={{ scale: 0.98 }}
           style={{ background: 'linear-gradient(135deg, #5B8E6F 0%, #3D6B53 100%)', borderRadius: 20, padding: 20, cursor: 'pointer', marginBottom: 16, position: 'relative', overflow: 'hidden' }}
         >
           <div style={{ position: 'absolute', top: -30, left: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
@@ -58,33 +65,197 @@ export function InsightsMain({ nav, savingsGoal }: InsightsProps) {
           <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, color: 'rgba(255,255,255,0.8)', marginBottom: 14 }}>
             ₪{savingsGoal.current.toLocaleString()} מתוך ₪{savingsGoal.target.toLocaleString()}
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 99, height: 8, position: 'relative' }}>
-            <div style={{ position: 'absolute', right: 0, top: 0, height: '100%', width: `${pct}%`, background: '#BEE3CB', borderRadius: 99, transition: 'width 0.6s ease' }} />
+          <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 99, height: 8, position: 'relative', overflow: 'hidden' }}>
+            <motion.div
+              initial={{ width: '0%' }}
+              animate={{ width: `${pct}%` }}
+              transition={{ delay: 0.15, duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+              style={{ position: 'absolute', right: 0, top: 0, height: '100%', background: '#BEE3CB', borderRadius: 99 }}
+            />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-            <span style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{pct}% הושלם</span>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: 'rgba(255,255,255,0.7)' }}
+            >
+              {pct}% הושלם
+            </motion.span>
             <span style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>עוד ₪{(savingsGoal.target - savingsGoal.current).toLocaleString()}</span>
           </div>
-        </div>
+        </motion.div>
+
+        {/* Insights header — edit + add buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12, duration: 0.28 }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, paddingInline: 2 }}
+        >
+          <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 15, fontWeight: 700, color: '#1F1A15' }}>
+            התובנות שלך
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <motion.button
+              whileTap={{ scale: 0.94 }}
+              onClick={() => setEditMode(v => !v)}
+              style={{
+                padding: '7px 12px',
+                borderRadius: 99,
+                border: '1px solid rgba(31,26,21,0.1)',
+                background: editMode ? '#1F1A15' : 'rgba(255,255,255,0.75)',
+                color: editMode ? '#F7F5E8' : '#4A4237',
+                cursor: 'pointer',
+                fontFamily: "'Rubik', system-ui, sans-serif",
+                fontSize: 12,
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                transition: 'background 0.2s ease, color 0.2s ease',
+              }}
+            >
+              <Icon name="settings" size={12} color={editMode ? '#F7F5E8' : '#4A4237'} />
+              {editMode ? 'סיום' : 'ערוך'}
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.94 }}
+              onClick={() => setSheetOpen(true)}
+              style={{
+                padding: '7px 12px',
+                borderRadius: 99,
+                border: 'none',
+                background: '#C85A8A',
+                color: '#FFFFFF',
+                cursor: 'pointer',
+                fontFamily: "'Rubik', system-ui, sans-serif",
+                fontSize: 12,
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                boxShadow: '0 3px 10px rgba(200,90,138,0.28)',
+              }}
+            >
+              <Icon name="plus" size={12} color="#FFFFFF" />
+              הוסף תובנה
+            </motion.button>
+          </div>
+        </motion.div>
 
         {/* Insight rows */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {INSIGHT_ROWS.map(row => (
-            <div key={row.id} style={{ background: 'rgba(255,255,255,0.75)', borderRadius: 16, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: row.tint, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Icon name={row.icon} size={22} color={row.ink} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, fontWeight: 600, color: '#1F1A15' }}>{row.title}</div>
-                <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, color: '#4A4237' }}>{row.subtitle}</div>
-              </div>
-              <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, fontWeight: 700, color: row.positive ? '#5B8E6F' : '#D47070', padding: '4px 10px', borderRadius: 99, background: row.positive ? '#DDEEDF' : '#FADEDC' }}>
-                {row.value}
-              </div>
-            </div>
-          ))}
+          <AnimatePresence mode="popLayout">
+            {insights.map((row, i) => (
+              <motion.div
+                key={row.id}
+                layout
+                initial={{ opacity: 0, y: 10, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.18 } }}
+                transition={{ delay: i * 0.04, type: 'spring', damping: 22, stiffness: 240 }}
+                whileTap={!editMode ? { scale: 0.98 } : undefined}
+                style={{ position: 'relative', background: 'rgba(255,255,255,0.75)', borderRadius: 16, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}
+              >
+                <AnimatePresence>
+                  {editMode && (
+                    <motion.button
+                      key="del"
+                      onClick={() => handleRemove(row.id)}
+                      initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
+                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                      exit={{ opacity: 0, scale: 0.5, rotate: 90 }}
+                      transition={{ type: 'spring', damping: 18, stiffness: 280 }}
+                      whileTap={{ scale: 0.88 }}
+                      style={{
+                        position: 'absolute',
+                        top: -6,
+                        left: -6,
+                        width: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        background: '#D47070',
+                        color: '#FFFFFF',
+                        border: '2px solid #D6EEE0',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 0,
+                        boxShadow: '0 2px 6px rgba(212,112,112,0.35)',
+                        zIndex: 2,
+                      }}
+                    >
+                      <Icon name="close" size={12} color="#FFFFFF" />
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+
+                <motion.div
+                  animate={
+                    editMode
+                      ? { rotate: [0, -0.8, 0.8, 0] }
+                      : { rotate: 0 }
+                  }
+                  transition={
+                    editMode
+                      ? { repeat: Infinity, duration: 0.5, ease: 'easeInOut', delay: i * 0.05 }
+                      : { duration: 0.2 }
+                  }
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}
+                >
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: row.tint, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icon name={row.icon} size={22} color={row.ink} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, fontWeight: 600, color: '#1F1A15' }}>{row.title}</div>
+                    <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, color: '#4A4237', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.subtitle}</div>
+                  </div>
+                  <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, fontWeight: 700, color: row.positive ? '#5B8E6F' : '#D47070', padding: '4px 10px', borderRadius: 99, background: row.positive ? '#DDEEDF' : '#FADEDC', whiteSpace: 'nowrap' }}>
+                    {row.value}
+                  </div>
+                </motion.div>
+              </motion.div>
+            ))}
+
+            {insights.length === 0 && (
+              <motion.button
+                key="empty"
+                onClick={() => setSheetOpen(true)}
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                whileTap={{ scale: 0.98 }}
+                style={{
+                  background: 'rgba(255,255,255,0.5)',
+                  border: '2px dashed rgba(31,26,21,0.18)',
+                  borderRadius: 16,
+                  padding: '26px 14px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 5,
+                  fontFamily: "'Rubik', system-ui, sans-serif",
+                }}
+              >
+                <Icon name="sparkle" size={22} color="#C85A8A" />
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1F1A15' }}>עדיין אין תובנות</div>
+                <div style={{ fontSize: 12, color: '#8A8070' }}>לחץ כדי להוסיף תובנה ראשונה</div>
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
+      {/* Add insight bottom-sheet */}
+      <AddInsightSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        onAdd={handleAdd}
+        existingIds={insights.map(i => i.id)}
+      />
 
       <TabBar active="insights" onTab={t => nav(t)} />
     </div>

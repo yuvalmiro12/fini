@@ -8,6 +8,7 @@ import { TxDetailSheet, AddTx, Paywall, Couples } from '../components/screens/sh
 import { Settings } from '../components/screens/settings'
 import { NotificationsScreen } from '../components/screens/notifications'
 import { Toast, ToastData, ToastType } from '../components/ui/toast'
+import { DesktopShell } from '../components/desktop/desktop-shell'
 import { TRANSACTIONS, SAVINGS_GOAL } from '../lib/seed'
 import type { Transaction, SavingsGoal as SavingsGoalType } from '../lib/seed'
 
@@ -171,43 +172,78 @@ export default function Page() {
     }
   }
 
+  // v1.2.1 — Two independent shells rendered always. CSS at ≥1024px hides
+  // MobileShell and shows DesktopShell. Onboarding always uses the mobile
+  // (centered) layout since onboarded state gates the desktop flow anyway.
+  // See DESKTOP_REDESIGN.md + globals.css for breakpoint rules.
+  const isOnboarding = ['obWelcome', 'obGoal', 'obIncome', 'obPlan', 'obTrial'].includes(screen)
+
   return (
-    <main style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', minHeight: '100vh', background: '#EFEADA', padding: '0' }}>
-      <div style={{ width: '100%', maxWidth: 390, minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F7F5E8', position: 'relative', overflow: 'hidden', boxShadow: '0 0 40px rgba(31,26,21,0.12)' }}>
-        {hydrated ? (
-          renderScreen()
-        ) : (
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: '#F7F5E8',
-              fontFamily: "'Rubik', system-ui, sans-serif",
-            }}
-          >
-            <div
-              style={{
-                width: 56,
-                height: 56,
-                borderRadius: '50%',
-                background: '#1F1A15',
-                color: '#F7F5E8',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 22,
-                fontWeight: 700,
-                letterSpacing: -0.5,
-              }}
-            >
-              F
-            </div>
+    <>
+      {/* MobileShell — visible <1024px (or during onboarding at any width) */}
+      <main
+        className={isOnboarding ? 'fini-shell fini-shell--onboarding' : 'fini-shell'}
+      >
+        <div className="fini-shell__phone">
+          <div className="fini-shell__main-inner">
+            {hydrated ? (
+              renderScreen()
+            ) : (
+              <div
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#F7F5E8',
+                  fontFamily: "'Rubik', system-ui, sans-serif",
+                }}
+              >
+                <div
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: '50%',
+                    background: '#1F1A15',
+                    color: '#F7F5E8',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 22,
+                    fontWeight: 700,
+                    letterSpacing: -0.5,
+                  }}
+                >
+                  F
+                </div>
+              </div>
+            )}
           </div>
-        )}
-        <Toast toast={toast} onDismiss={dismissToast} />
-      </div>
-    </main>
+          <Toast toast={toast} onDismiss={dismissToast} />
+        </div>
+      </main>
+
+      {/* DesktopShell — visible ≥1024px, skipped during onboarding */}
+      {hydrated && !isOnboarding && (
+        <DesktopShell
+          screen={screen}
+          nav={nav}
+          transactions={transactions}
+          savingsGoal={savingsGoal}
+          selectedTxId={selectedTxId}
+          prevScreen={prevScreen}
+          plan={plan}
+          userName={userName}
+          onAddTx={addTx}
+          onDeleteTx={deleteTx}
+          onUpdateTx={updateTx}
+          onUpdateGoal={updateGoal}
+          onSelectPlan={selectPlan}
+          onUpdateUserName={updateUserName}
+          onReset={resetApp}
+          onSelectTx={selectTx}
+        />
+      )}
+    </>
   )
 }

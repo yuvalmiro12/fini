@@ -16,7 +16,7 @@ interface ScreenProps {
 }
 
 // ── Mock AI engine ────────────────────────────────────────────
-function getAiResponse(text: string, transactions: Transaction[]): ChatMessage[] {
+export function getAiResponse(text: string, transactions: Transaction[]): ChatMessage[] {
   const lower = text.toLowerCase()
   const id = () => `ai${Date.now()}${Math.random().toString(36).slice(2, 6)}`
 
@@ -344,7 +344,7 @@ function DailyBrief({ transactions, userName, onAsk }: { transactions: Transacti
   )
 }
 
-function TypingIndicator() {
+export function TypingIndicator() {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, direction: 'rtl' }}>
       <FiniAvatar size={32} mood="talk" />
@@ -358,7 +358,7 @@ function TypingIndicator() {
   )
 }
 
-function SuggChips({ suggestions, onSelect }: { suggestions: string[]; onSelect: (s: string) => void }) {
+export function SuggChips({ suggestions, onSelect }: { suggestions: string[]; onSelect: (s: string) => void }) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, direction: 'rtl', paddingRight: 40 }}>
       {suggestions.map((s, i) => (
@@ -370,7 +370,7 @@ function SuggChips({ suggestions, onSelect }: { suggestions: string[]; onSelect:
   )
 }
 
-function FBubble({ msg, transactions }: { msg: ChatMessage; transactions: Transaction[] }) {
+export function FBubble({ msg, transactions }: { msg: ChatMessage; transactions: Transaction[] }) {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut' }} style={{ display: 'flex', alignItems: 'flex-end', gap: 8, direction: 'rtl' }}>
       <FiniAvatar size={32} mood="talk" />
@@ -387,7 +387,7 @@ function FBubble({ msg, transactions }: { msg: ChatMessage; transactions: Transa
   )
 }
 
-function UBubble({ text }: { text: string }) {
+export function UBubble({ text }: { text: string }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-start', direction: 'rtl' }}>
       <div style={{ background: '#1F1A15', borderRadius: '20px 20px 6px 20px', padding: '12px 16px', maxWidth: '75%', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, color: '#F7F5E8', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
@@ -397,7 +397,7 @@ function UBubble({ text }: { text: string }) {
   )
 }
 
-function Composer({ onSend, onAddTx, disabled = false }: { onSend: (text: string) => void; onAddTx: () => void; disabled?: boolean }) {
+export function Composer({ onSend, onAddTx, disabled = false }: { onSend: (text: string) => void; onAddTx: () => void; disabled?: boolean }) {
   const [text, setText] = useState('')
 
   const canSend = !disabled && !!text.trim()

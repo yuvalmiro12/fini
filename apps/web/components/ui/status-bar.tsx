@@ -3,6 +3,7 @@ import React from 'react'
 export function StatusBar() {
   return (
     <div
+      className="fini-mobile-status-bar"
       style={{
         height: 54,
         display: 'flex',

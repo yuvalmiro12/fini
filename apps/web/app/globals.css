@@ -29,3 +29,68 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ────────────────────────────────────────────────────────────────
+   v1.2.1 Desktop Redesign — Shell switching
+
+   Two independent layout trees (MobileShell, DesktopShell) are always
+   rendered. CSS alone decides which is visible:
+
+     <1024px  →  MobileShell visible, DesktopShell display:none
+     ≥1024px  →  DesktopShell visible, MobileShell display:none
+
+   Mobile code path is NOT touched by desktop layout. Zero regressions.
+   ──────────────────────────────────────────────────────────────── */
+
+/* Mobile default */
+.fini-shell {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background: #EFEADA;
+  padding: 0;
+}
+
+.fini-shell__phone {
+  width: 100%;
+  max-width: 390px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #F7F5E8;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(31, 26, 21, 0.12);
+}
+
+.fini-shell__main-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+/* DesktopShell hidden on mobile */
+.fini-desktop-shell {
+  display: none !important;
+}
+
+/* ────────────────────────────────────────────────
+   ≥1024px — Hide MobileShell, show DesktopShell.
+   ──────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  /* Hide the entire mobile shell tree — phone wrapper + toast + everything.
+     Exception: during onboarding (`.fini-shell--onboarding`) we keep the
+     phone shell visible, centered, so welcome/goal/plan screens look right
+     on desktop too. DesktopShell isn't rendered during onboarding. */
+  .fini-shell:not(.fini-shell--onboarding) {
+    display: none !important;
+  }
+
+  /* Show the desktop shell tree (grid rules live inline on the component). */
+  .fini-desktop-shell {
+    display: grid !important;
+  }
+}
