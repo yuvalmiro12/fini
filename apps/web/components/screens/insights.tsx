@@ -7,6 +7,7 @@ import { TabBar } from '../ui/tab-bar'
 import { StatusBar } from '../ui/status-bar'
 import { AddInsightSheet } from './add-insight-sheet'
 import { DEFAULT_INSIGHTS, type Insight } from '../../lib/insight-templates'
+import { InsightCard } from '../insights/insight-card'
 import type { SavingsGoal as SavingsGoalType } from '../../lib/seed'
 
 interface InsightsProps {
@@ -148,75 +149,15 @@ export function InsightsMain({ nav, savingsGoal }: InsightsProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <AnimatePresence mode="popLayout">
             {insights.map((row, i) => (
-              <motion.div
+              <InsightCard
                 key={row.id}
-                layout
-                initial={{ opacity: 0, y: 10, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.18 } }}
-                transition={{ delay: i * 0.04, type: 'spring', damping: 22, stiffness: 240 }}
-                whileTap={!editMode ? { scale: 0.98 } : undefined}
-                style={{ position: 'relative', background: 'rgba(255,255,255,0.75)', borderRadius: 16, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}
-              >
-                <AnimatePresence>
-                  {editMode && (
-                    <motion.button
-                      key="del"
-                      onClick={() => handleRemove(row.id)}
-                      initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
-                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                      exit={{ opacity: 0, scale: 0.5, rotate: 90 }}
-                      transition={{ type: 'spring', damping: 18, stiffness: 280 }}
-                      whileTap={{ scale: 0.88 }}
-                      style={{
-                        position: 'absolute',
-                        top: -6,
-                        left: -6,
-                        width: 24,
-                        height: 24,
-                        borderRadius: '50%',
-                        background: '#D47070',
-                        color: '#FFFFFF',
-                        border: '2px solid #D6EEE0',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 0,
-                        boxShadow: '0 2px 6px rgba(212,112,112,0.35)',
-                        zIndex: 2,
-                      }}
-                    >
-                      <Icon name="close" size={12} color="#FFFFFF" />
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-
-                <motion.div
-                  animate={
-                    editMode
-                      ? { rotate: [0, -0.8, 0.8, 0] }
-                      : { rotate: 0 }
-                  }
-                  transition={
-                    editMode
-                      ? { repeat: Infinity, duration: 0.5, ease: 'easeInOut', delay: i * 0.05 }
-                      : { duration: 0.2 }
-                  }
-                  style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}
-                >
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: row.tint, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Icon name={row.icon} size={22} color={row.ink} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, fontWeight: 600, color: '#1F1A15' }}>{row.title}</div>
-                    <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, color: '#4A4237', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.subtitle}</div>
-                  </div>
-                  <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, fontWeight: 700, color: row.positive ? '#5B8E6F' : '#D47070', padding: '4px 10px', borderRadius: 99, background: row.positive ? '#DDEEDF' : '#FADEDC', whiteSpace: 'nowrap' }}>
-                    {row.value}
-                  </div>
-                </motion.div>
-              </motion.div>
+                insight={row}
+                index={i}
+                editMode={editMode}
+                onDelete={() => handleRemove(row.id)}
+                desktop={false}
+                deleteBorderColor="#D6EEE0"
+              />
             ))}
 
             {insights.length === 0 && (

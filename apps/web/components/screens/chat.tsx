@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { FiniAvatar } from '../ui/fini-mascot'
 import { CatIcon } from '../ui/cat-icon'
 import { Icon } from '../ui/icon'
@@ -131,40 +131,68 @@ function TxChip({ txId, transactions }: { txId: string; transactions: Transactio
   const tx = transactions.find(t => t.id === txId)
   if (!tx) return null
   return (
-    <div style={{ background: 'rgba(255,255,255,0.9)', borderRadius: 14, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, direction: 'rtl', boxShadow: '0 2px 8px rgba(31,26,21,0.08)', maxWidth: 260 }}>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.92, y: 6 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ type: 'spring', damping: 22, stiffness: 260, delay: 0.08 }}
+      whileHover={{ y: -2, boxShadow: '0 6px 16px rgba(31,26,21,0.12)' }}
+      whileTap={{ scale: 0.98 }}
+      style={{ background: 'rgba(255,255,255,0.9)', borderRadius: 14, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10, direction: 'rtl', boxShadow: '0 2px 8px rgba(31,26,21,0.08)', maxWidth: 260 }}
+    >
       <CatIcon cat={tx.category} size={38} radius={10} />
       <div style={{ flex: 1 }}>
         <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, fontWeight: 600, color: '#1F1A15' }}>{tx.title}</div>
         <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, color: '#8A8070' }}>{tx.time}</div>
       </div>
       <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 15, fontWeight: 700, color: '#D47070' }}>₪{tx.amount.toLocaleString()}</div>
-    </div>
+    </motion.div>
   )
 }
 
 function InsightCard({ data }: { data: { title: string; body: string; bars: number[]; days: string[] } }) {
   const maxBar = Math.max(...data.bars)
   return (
-    <div style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #FDDDE8 100%)', borderRadius: 18, padding: '16px', maxWidth: 280, boxShadow: '0 4px 16px rgba(31,26,21,0.08)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.94, y: 8 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ type: 'spring', damping: 22, stiffness: 220, delay: 0.1 }}
+      whileHover={{ y: -2 }}
+      style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #FDDDE8 100%)', borderRadius: 18, padding: '16px', maxWidth: 280, boxShadow: '0 4px 16px rgba(31,26,21,0.08)' }}
+    >
+      <motion.div
+        initial={{ opacity: 0, x: 6 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.22, duration: 0.3 }}
+        style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}
+      >
         <Icon name="sparkle" size={14} color="#C9A24D" />
         <span style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, fontWeight: 700, color: '#C9A24D' }}>תובנה</span>
-      </div>
-      <p style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, color: '#1F1A15', lineHeight: 1.6, margin: '0 0 14px', whiteSpace: 'pre-line' }}
-        dangerouslySetInnerHTML={{ __html: data.body.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+      </motion.div>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.28, duration: 0.35 }}
+        style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, color: '#1F1A15', lineHeight: 1.6, margin: '0 0 14px', whiteSpace: 'pre-line' }}
+        dangerouslySetInnerHTML={{ __html: data.body.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }}
+      />
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 40 }}>
         {data.bars.map((val, i) => {
           const isLast = i === data.bars.length - 1
           const height = Math.max(4, (val / maxBar) * 36)
           return (
             <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
-              <div style={{ width: '100%', height, borderRadius: 3, background: isLast ? '#C85A8A' : '#F9C6D7', transition: 'height 0.4s ease' }} />
+              <motion.div
+                initial={{ height: 4, opacity: 0.5 }}
+                animate={{ height, opacity: 1 }}
+                transition={{ delay: 0.38 + i * 0.05, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                style={{ width: '100%', borderRadius: 3, background: isLast ? '#C85A8A' : '#F9C6D7' }}
+              />
               <span style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 9, color: '#8A8070' }}>{data.days[i]}</span>
             </div>
           )
         })}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -319,9 +347,14 @@ function DailyBrief({ transactions, userName, onAsk }: { transactions: Transacti
           {/* Quick questions */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
             {quickQs.map((q, i) => (
-              <button
+              <motion.button
                 key={i}
                 onClick={() => onAsk(q)}
+                initial={{ opacity: 0, y: 4, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: 0.25 + i * 0.06, type: 'spring', damping: 22, stiffness: 260 }}
+                whileHover={{ y: -1, background: 'rgba(255,255,255,0.95)' }}
+                whileTap={{ scale: 0.94 }}
                 style={{
                   padding: '6px 12px',
                   borderRadius: 99,
@@ -335,7 +368,7 @@ function DailyBrief({ transactions, userName, onAsk }: { transactions: Transacti
                 }}
               >
                 {q}
-              </button>
+              </motion.button>
             ))}
           </div>
         </>
@@ -346,15 +379,25 @@ function DailyBrief({ transactions, userName, onAsk }: { transactions: Transacti
 
 export function TypingIndicator() {
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, direction: 'rtl' }}>
+    <motion.div
+      initial={{ opacity: 0, y: 6, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -4, scale: 0.96 }}
+      transition={{ type: 'spring', damping: 24, stiffness: 280 }}
+      style={{ display: 'flex', alignItems: 'flex-end', gap: 8, direction: 'rtl' }}
+    >
       <FiniAvatar size={32} mood="talk" />
-      <div style={{ background: '#FFFFFF', borderRadius: '20px 20px 20px 6px', padding: '12px 16px', boxShadow: '0 2px 8px rgba(31,26,21,0.06)', display: 'flex', alignItems: 'center', gap: 4 }}>
+      <div style={{ background: '#FFFFFF', borderRadius: '20px 20px 20px 6px', padding: '12px 16px', boxShadow: '0 2px 8px rgba(31,26,21,0.06)', display: 'flex', alignItems: 'center', gap: 5 }}>
         {[0, 1, 2].map(i => (
-          <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: '#C85A8A', opacity: 0.7, animation: `bounce 1.2s ${i * 0.2}s infinite` }} />
+          <motion.div
+            key={i}
+            animate={{ y: [0, -6, 0], opacity: [0.45, 1, 0.45] }}
+            transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }}
+            style={{ width: 7, height: 7, borderRadius: '50%', background: '#C85A8A' }}
+          />
         ))}
-        <style>{`@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }`}</style>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -362,9 +405,18 @@ export function SuggChips({ suggestions, onSelect }: { suggestions: string[]; on
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, direction: 'rtl', paddingRight: 40 }}>
       {suggestions.map((s, i) => (
-        <button key={i} onClick={() => onSelect(s)} style={{ padding: '8px 14px', borderRadius: 99, border: '1.5px solid rgba(200,90,138,0.4)', background: 'rgba(255,255,255,0.75)', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, fontWeight: 500, color: '#C85A8A', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
+        <motion.button
+          key={i}
+          onClick={() => onSelect(s)}
+          initial={{ opacity: 0, y: 8, scale: 0.92 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.12 + i * 0.07, type: 'spring', damping: 22, stiffness: 260 }}
+          whileHover={{ y: -2, background: 'rgba(255,255,255,0.95)', borderColor: 'rgba(200,90,138,0.7)' }}
+          whileTap={{ scale: 0.94 }}
+          style={{ padding: '8px 14px', borderRadius: 99, border: '1.5px solid rgba(200,90,138,0.4)', background: 'rgba(255,255,255,0.75)', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, fontWeight: 500, color: '#C85A8A', cursor: 'pointer', backdropFilter: 'blur(8px)' }}
+        >
           {s}
-        </button>
+        </motion.button>
       ))}
     </div>
   )
@@ -372,13 +424,30 @@ export function SuggChips({ suggestions, onSelect }: { suggestions: string[]; on
 
 export function FBubble({ msg, transactions }: { msg: ChatMessage; transactions: Transaction[] }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: 'easeOut' }} style={{ display: 'flex', alignItems: 'flex-end', gap: 8, direction: 'rtl' }}>
-      <FiniAvatar size={32} mood="talk" />
+    <motion.div
+      layout
+      initial={{ opacity: 0, x: 18, scale: 0.94 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      transition={{ type: 'spring', damping: 24, stiffness: 260 }}
+      style={{ display: 'flex', alignItems: 'flex-end', gap: 8, direction: 'rtl' }}
+    >
+      <motion.div
+        initial={{ scale: 0.7, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.06, type: 'spring', damping: 18, stiffness: 320 }}
+      >
+        <FiniAvatar size={32} mood="talk" />
+      </motion.div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: '80%' }}>
         {msg.text && (
-          <div style={{ background: '#FFFFFF', borderRadius: '20px 20px 20px 6px', padding: '12px 16px', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, color: '#1F1A15', lineHeight: 1.6, boxShadow: '0 2px 8px rgba(31,26,21,0.06)', whiteSpace: 'pre-line' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.25 }}
+            style={{ background: '#FFFFFF', borderRadius: '20px 20px 20px 6px', padding: '12px 16px', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, color: '#1F1A15', lineHeight: 1.6, boxShadow: '0 2px 8px rgba(31,26,21,0.06)', whiteSpace: 'pre-line' }}
+          >
             {msg.text}
-          </div>
+          </motion.div>
         )}
         {msg.type === 'txChip' && msg.txId && <TxChip txId={msg.txId} transactions={transactions} />}
         {msg.type === 'insight' && msg.insight && <InsightCard data={msg.insight} />}
@@ -389,11 +458,17 @@ export function FBubble({ msg, transactions }: { msg: ChatMessage; transactions:
 
 export function UBubble({ text }: { text: string }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'flex-start', direction: 'rtl' }}>
+    <motion.div
+      layout
+      initial={{ opacity: 0, x: -18, scale: 0.94 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      transition={{ type: 'spring', damping: 24, stiffness: 280 }}
+      style={{ display: 'flex', justifyContent: 'flex-start', direction: 'rtl' }}
+    >
       <div style={{ background: '#1F1A15', borderRadius: '20px 20px 6px 20px', padding: '12px 16px', maxWidth: '75%', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, color: '#F7F5E8', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
         {text}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -408,14 +483,17 @@ export function Composer({ onSend, onAddTx, disabled = false }: { onSend: (text:
 
   return (
     <div style={{ padding: '10px 16px 20px', display: 'flex', alignItems: 'center', gap: 8, direction: 'rtl', background: 'rgba(253,221,232,0.8)', backdropFilter: 'blur(12px)' }}>
-      <button
+      <motion.button
         onClick={onAddTx}
         disabled={disabled}
         title="הוסף עסקה"
+        whileTap={disabled ? undefined : { scale: 0.9, rotate: 90 }}
+        whileHover={disabled ? undefined : { scale: 1.05 }}
+        transition={{ type: 'spring', damping: 18, stiffness: 300 }}
         style={{ background: 'rgba(255,255,255,0.8)', border: 'none', borderRadius: '50%', width: 36, height: 36, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(31,26,21,0.1)' }}
       >
         <Icon name="plus" size={20} color="#C85A8A" />
-      </button>
+      </motion.button>
       <div style={{ flex: 1, background: 'rgba(255,255,255,0.9)', borderRadius: 999, padding: '10px 16px', display: 'flex', alignItems: 'center', opacity: disabled ? 0.7 : 1 }}>
         <input
           value={text}
@@ -426,13 +504,17 @@ export function Composer({ onSend, onAddTx, disabled = false }: { onSend: (text:
           style={{ flex: 1, border: 'none', background: 'transparent', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, color: '#1F1A15', outline: 'none', direction: 'rtl' }}
         />
       </div>
-      <button
+      <motion.button
         onClick={handleSend}
         disabled={!canSend}
-        style={{ width: 40, height: 40, borderRadius: '50%', background: canSend ? '#C85A8A' : 'rgba(200,90,138,0.3)', border: 'none', cursor: canSend ? 'pointer' : 'default', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: canSend ? '0 4px 12px rgba(200,90,138,0.3)' : 'none', transition: 'all 0.2s' }}
+        animate={{ scale: canSend ? 1 : 0.92 }}
+        whileTap={canSend ? { scale: 0.88 } : undefined}
+        whileHover={canSend ? { scale: 1.06 } : undefined}
+        transition={{ type: 'spring', damping: 18, stiffness: 320 }}
+        style={{ width: 40, height: 40, borderRadius: '50%', background: canSend ? '#C85A8A' : 'rgba(200,90,138,0.3)', border: 'none', cursor: canSend ? 'pointer' : 'default', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: canSend ? '0 4px 12px rgba(200,90,138,0.3)' : 'none' }}
       >
         <Icon name="send" size={18} color="#FFFFFF" />
-      </button>
+      </motion.button>
     </div>
   )
 }
@@ -467,22 +549,24 @@ export function ChatMain({ nav, transactions, userName = 'נועה' }: ScreenPro
       <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 120px', display: 'flex', flexDirection: 'column', gap: 12, direction: 'rtl' }}>
         <DailyBrief transactions={transactions} userName={userName} onAsk={handleSend} />
         <DateDivider date="היום" />
-        {messages.map(msg => {
-          if (msg.role === 'fini') {
-            return (
-              <div key={msg.id}>
-                <FBubble msg={msg} transactions={transactions} />
-                {msg.type === 'suggestions' && msg.suggestions && (
-                  <div style={{ marginTop: 8, marginRight: 40 }}>
-                    <SuggChips suggestions={msg.suggestions} onSelect={handleSend} />
-                  </div>
-                )}
-              </div>
-            )
-          }
-          return <UBubble key={msg.id} text={msg.text || ''} />
-        })}
-        {isTyping && <TypingIndicator />}
+        <AnimatePresence initial={false} mode="popLayout">
+          {messages.map(msg => {
+            if (msg.role === 'fini') {
+              return (
+                <motion.div key={msg.id} layout>
+                  <FBubble msg={msg} transactions={transactions} />
+                  {msg.type === 'suggestions' && msg.suggestions && (
+                    <div style={{ marginTop: 8, marginRight: 40 }}>
+                      <SuggChips suggestions={msg.suggestions} onSelect={handleSend} />
+                    </div>
+                  )}
+                </motion.div>
+              )
+            }
+            return <UBubble key={msg.id} text={msg.text || ''} />
+          })}
+          {isTyping && <TypingIndicator key="typing" />}
+        </AnimatePresence>
       </div>
       <Composer onSend={handleSend} onAddTx={() => nav('addTx')} disabled={isTyping} />
       <TabBar active="chat" onTab={t => nav(t)} />

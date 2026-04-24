@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import { motion } from 'framer-motion'
 import { Icon } from '../ui/icon'
 
 /**
@@ -62,8 +63,15 @@ export function Sidebar({
       }}
     >
       {/* Brand */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 6px 18px' }}>
-        <div
+      <motion.div
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 6px 18px' }}
+      >
+        <motion.div
+          whileHover={{ rotate: -8, scale: 1.05 }}
+          transition={{ type: 'spring', damping: 16, stiffness: 300 }}
           style={{
             width: 34,
             height: 34,
@@ -79,17 +87,17 @@ export function Sidebar({
           }}
         >
           F
-        </div>
+        </motion.div>
         <div>
           <div style={{ fontSize: 16, fontWeight: 700, color: '#1F1A15', letterSpacing: -0.3 }}>פיני</div>
           <div style={{ fontSize: 11, color: '#8A8070', fontWeight: 500 }}>ניהול פיננסי</div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Primary nav */}
       <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, marginTop: 6 }}>
-        {ITEMS.map((item) => (
-          <NavButton key={item.key} item={item} active={item.matches.includes(screen)} onClick={() => onNav(item.target)} />
+        {ITEMS.map((item, i) => (
+          <NavButton key={item.key} item={item} active={item.matches.includes(screen)} onClick={() => onNav(item.target)} index={i} />
         ))}
       </nav>
 
@@ -98,14 +106,19 @@ export function Sidebar({
 
       {/* Secondary nav */}
       <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 12 }}>
-        {BOTTOM_ITEMS.map((item) => (
-          <NavButton key={item.key} item={item} active={item.matches.includes(screen)} onClick={() => onNav(item.target)} />
+        {BOTTOM_ITEMS.map((item, i) => (
+          <NavButton key={item.key} item={item} active={item.matches.includes(screen)} onClick={() => onNav(item.target)} index={ITEMS.length + i} />
         ))}
       </nav>
 
       {/* User card */}
-      <div
+      <motion.div
         onClick={() => onNav('settings')}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35, duration: 0.3 }}
+        whileHover={{ background: 'rgba(255,255,255,0.95)', y: -1 }}
+        whileTap={{ scale: 0.98 }}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -115,10 +128,7 @@ export function Sidebar({
           cursor: 'pointer',
           background: 'rgba(255,255,255,0.6)',
           border: '1px solid rgba(31,26,21,0.05)',
-          transition: 'background 0.15s ease',
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.9)' }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.6)' }}
       >
         <div
           style={{
@@ -143,17 +153,23 @@ export function Sidebar({
           </div>
         </div>
         <Icon name="chevron-left" size={14} color="#8A8070" />
-      </div>
+      </motion.div>
     </aside>
   )
 }
 
-function NavButton({ item, active, onClick }: { item: Item; active: boolean; onClick: () => void }) {
+function NavButton({ item, active, onClick, index }: { item: Item; active: boolean; onClick: () => void; index: number }) {
   return (
-    <button
+    <motion.button
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
+      initial={{ opacity: 0, x: 8 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.08 + index * 0.04, duration: 0.22 }}
+      whileHover={!active ? { background: 'rgba(255,255,255,0.6)', x: -2 } : undefined}
+      whileTap={{ scale: 0.97 }}
       style={{
+        position: 'relative',
         display: 'flex',
         alignItems: 'center',
         gap: 10,
@@ -166,21 +182,35 @@ function NavButton({ item, active, onClick }: { item: Item; active: boolean; onC
         fontFamily: "'Rubik', system-ui, sans-serif",
         fontSize: 14,
         fontWeight: active ? 600 : 500,
-        transition: 'background 0.15s ease, color 0.15s ease',
         boxShadow: active ? '0 1px 2px rgba(31,26,21,0.04), 0 0 0 1px rgba(31,26,21,0.04)' : 'none',
         direction: 'rtl',
         textAlign: 'right',
         width: '100%',
       }}
-      onMouseEnter={(e) => {
-        if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.5)'
-      }}
-      onMouseLeave={(e) => {
-        if (!active) e.currentTarget.style.background = 'transparent'
-      }}
     >
-      <Icon name={item.icon} size={18} color={active ? item.accent : '#8A8070'} />
+      {active && (
+        <motion.span
+          layoutId="sidebar-active-accent"
+          transition={{ type: 'spring', damping: 26, stiffness: 340 }}
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 8,
+            bottom: 8,
+            width: 3,
+            borderRadius: 3,
+            background: item.accent,
+          }}
+        />
+      )}
+      <motion.span
+        animate={{ scale: active ? 1.08 : 1 }}
+        transition={{ type: 'spring', damping: 18, stiffness: 320 }}
+        style={{ display: 'flex' }}
+      >
+        <Icon name={item.icon} size={18} color={active ? item.accent : '#8A8070'} />
+      </motion.span>
       <span>{item.label}</span>
-    </button>
+    </motion.button>
   )
 }

@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { FiniAvatar } from '../ui/fini-mascot'
 import { Icon } from '../ui/icon'
 import {
@@ -58,80 +59,92 @@ export function ChatDrawer({
   return (
     <>
       {/* Backdrop when open */}
-      {open && (
-        <div
-          onClick={() => setOpen(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(31,26,21,0.15)',
-            zIndex: 40,
-            transition: 'opacity 0.2s ease',
-          }}
-        />
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(31,26,21,0.15)',
+              zIndex: 40,
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* FAB (shown when closed) */}
-      {!open && (
-        <button
-          onClick={() => { setOpen(true); setUnread(false) }}
-          aria-label="פתח צ'אט עם פיני"
-          style={{
-            position: 'fixed',
-            bottom: 28,
-            left: 28,
-            height: 54,
-            padding: '0 8px 0 18px',
-            minWidth: 54,
-            borderRadius: 99,
-            border: 'none',
-            cursor: 'pointer',
-            background: '#FDDDE8',
-            boxShadow: '0 8px 24px rgba(200,90,138,0.25), 0 2px 6px rgba(31,26,21,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            fontFamily: "'Rubik', system-ui, sans-serif",
-            fontSize: 14,
-            fontWeight: 600,
-            color: '#1F1A15',
-            zIndex: 45,
-            direction: 'rtl',
-            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)'
-            e.currentTarget.style.boxShadow = '0 12px 30px rgba(200,90,138,0.35), 0 2px 6px rgba(31,26,21,0.1)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)'
-            e.currentTarget.style.boxShadow = '0 8px 24px rgba(200,90,138,0.25), 0 2px 6px rgba(31,26,21,0.1)'
-          }}
-        >
-          <span style={{ position: 'relative' }}>
-            <FiniAvatar size={38} mood="happy" />
-            {unread && (
-              <span
-                style={{
-                  position: 'absolute',
-                  top: -2,
-                  left: -2,
-                  width: 12,
-                  height: 12,
-                  borderRadius: '50%',
-                  background: '#C85A8A',
-                  border: '2px solid #FDDDE8',
-                }}
-              />
-            )}
-          </span>
-          <span>דבר עם פיני</span>
-        </button>
-      )}
+      <AnimatePresence>
+        {!open && (
+          <motion.button
+            key="fab"
+            onClick={() => { setOpen(true); setUnread(false) }}
+            aria-label="פתח צ'אט עם פיני"
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.9 }}
+            transition={{ type: 'spring', damping: 22, stiffness: 260 }}
+            whileHover={{ y: -3, boxShadow: '0 14px 34px rgba(200,90,138,0.4), 0 2px 6px rgba(31,26,21,0.1)' }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              position: 'fixed',
+              bottom: 28,
+              left: 28,
+              height: 54,
+              padding: '0 8px 0 18px',
+              minWidth: 54,
+              borderRadius: 99,
+              border: 'none',
+              cursor: 'pointer',
+              background: '#FDDDE8',
+              boxShadow: '0 8px 24px rgba(200,90,138,0.25), 0 2px 6px rgba(31,26,21,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              fontFamily: "'Rubik', system-ui, sans-serif",
+              fontSize: 14,
+              fontWeight: 600,
+              color: '#1F1A15',
+              zIndex: 45,
+              direction: 'rtl',
+            }}
+          >
+            <span style={{ position: 'relative' }}>
+              <FiniAvatar size={38} mood="happy" />
+              {unread && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  style={{
+                    position: 'absolute',
+                    top: -2,
+                    left: -2,
+                    width: 12,
+                    height: 12,
+                    borderRadius: '50%',
+                    background: '#C85A8A',
+                    border: '2px solid #FDDDE8',
+                  }}
+                />
+              )}
+            </span>
+            <span>דבר עם פיני</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Drawer */}
-      <aside
+      <motion.aside
         aria-hidden={!open}
+        initial={false}
+        animate={{ x: open ? '0%' : '-110%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 260 }}
         style={{
           position: 'fixed',
           bottom: 0,
@@ -142,8 +155,6 @@ export function ChatDrawer({
           background: '#FFFFFF',
           boxShadow: open ? '0 0 40px rgba(31,26,21,0.18)' : 'none',
           zIndex: 50,
-          transform: open ? 'translateX(0)' : 'translateX(-110%)',
-          transition: 'transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1)',
           display: 'flex',
           flexDirection: 'column',
           direction: 'rtl',
@@ -181,9 +192,12 @@ export function ChatDrawer({
             <div style={{ fontSize: 16, fontWeight: 700, color: '#1F1A15' }}>פיני</div>
             <div style={{ fontSize: 11, color: '#5B8E6F', fontWeight: 500 }}>מחובר · מוכן לעזור</div>
           </div>
-          <button
+          <motion.button
             onClick={() => setOpen(false)}
             aria-label="סגור"
+            whileHover={{ background: 'rgba(255,255,255,0.9)' }}
+            whileTap={{ scale: 0.9, rotate: 90 }}
+            transition={{ type: 'spring', damping: 18, stiffness: 320 }}
             style={{
               width: 34,
               height: 34,
@@ -197,7 +211,7 @@ export function ChatDrawer({
             }}
           >
             <Icon name="close" size={16} color="#4A4237" />
-          </button>
+          </motion.button>
         </div>
 
         {/* Messages */}
@@ -212,29 +226,31 @@ export function ChatDrawer({
             gap: 12,
           }}
         >
-          {messages.map((msg) => {
-            if (msg.role === 'fini') {
-              return (
-                <div key={msg.id}>
-                  <FBubble msg={msg} transactions={transactions} />
-                  {msg.type === 'suggestions' && msg.suggestions && (
-                    <div style={{ marginTop: 8, marginRight: 40 }}>
-                      <SuggChips suggestions={msg.suggestions} onSelect={handleSend} />
-                    </div>
-                  )}
-                </div>
-              )
-            }
-            return <UBubble key={msg.id} text={msg.text || ''} />
-          })}
-          {isTyping && <TypingIndicator />}
+          <AnimatePresence initial={false} mode="popLayout">
+            {messages.map((msg) => {
+              if (msg.role === 'fini') {
+                return (
+                  <motion.div key={msg.id} layout>
+                    <FBubble msg={msg} transactions={transactions} />
+                    {msg.type === 'suggestions' && msg.suggestions && (
+                      <div style={{ marginTop: 8, marginRight: 40 }}>
+                        <SuggChips suggestions={msg.suggestions} onSelect={handleSend} />
+                      </div>
+                    )}
+                  </motion.div>
+                )
+              }
+              return <UBubble key={msg.id} text={msg.text || ''} />
+            })}
+            {isTyping && <TypingIndicator key="typing" />}
+          </AnimatePresence>
         </div>
 
         {/* Composer */}
         <div style={{ flexShrink: 0 }}>
           <Composer onSend={handleSend} onAddTx={onAddTx} disabled={isTyping} />
         </div>
-      </aside>
+      </motion.aside>
     </>
   )
 }

@@ -5,6 +5,7 @@ import { Icon } from '../ui/icon'
 import { FiniAvatar } from '../ui/fini-mascot'
 import { AddInsightModal } from './add-insight-modal'
 import { DEFAULT_INSIGHTS, type Insight } from '../../lib/insight-templates'
+import { InsightCard } from '../insights/insight-card'
 import type { SavingsGoal, Transaction } from '../../lib/seed'
 
 /**
@@ -209,111 +210,15 @@ export function InsightsDesktop({ nav, savingsGoal }: Props) {
         >
           <AnimatePresence mode="popLayout">
             {insights.map((row, i) => (
-              <motion.div
+              <InsightCard
                 key={row.id}
-                layout
-                initial={{ opacity: 0, y: 12, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.18 } }}
-                transition={{ delay: i * 0.04, type: 'spring', damping: 22, stiffness: 240 }}
-                whileHover={{ y: -2, boxShadow: '0 8px 20px rgba(31,26,21,0.08)' }}
-                style={{
-                  background: '#FFFFFF',
-                  border: '1px solid rgba(31,26,21,0.06)',
-                  borderRadius: 12,
-                  padding: 16,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  position: 'relative',
-                }}
-              >
-                {/* Delete button (edit mode only) */}
-                <AnimatePresence>
-                  {editMode && (
-                    <motion.button
-                      key="del"
-                      onClick={() => handleRemove(row.id)}
-                      initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
-                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                      exit={{ opacity: 0, scale: 0.5, rotate: 90 }}
-                      transition={{ type: 'spring', damping: 18, stiffness: 280 }}
-                      whileHover={{ scale: 1.1, rotate: 8 }}
-                      whileTap={{ scale: 0.9 }}
-                      style={{
-                        position: 'absolute',
-                        top: -8,
-                        left: -8,
-                        width: 24,
-                        height: 24,
-                        borderRadius: '50%',
-                        background: '#D47070',
-                        color: '#FFFFFF',
-                        border: '2px solid #FFFFFF',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 0,
-                        boxShadow: '0 2px 6px rgba(212,112,112,0.35)',
-                        zIndex: 2,
-                      }}
-                    >
-                      <Icon name="close" size={12} color="#FFFFFF" />
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-
-                {/* Edit-mode wiggle wrapper */}
-                <motion.div
-                  animate={editMode ? { rotate: [0, -0.8, 0.8, 0] } : { rotate: 0 }}
-                  transition={
-                    editMode
-                      ? { repeat: Infinity, duration: 0.5, ease: 'easeInOut', delay: i * 0.05 }
-                      : { duration: 0.2 }
-                  }
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    width: '100%',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 11,
-                      background: row.tint,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Icon name={row.icon} size={22} color={row.ink} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: '#1F1A15', marginBottom: 2 }}>{row.title}</div>
-                    <div style={{ fontSize: 12, color: '#4A4237', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {row.subtitle}
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: row.positive ? '#5B8E6F' : '#D47070',
-                      padding: '4px 10px',
-                      borderRadius: 99,
-                      background: row.positive ? '#DDEEDF' : '#FADEDC',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {row.value}
-                  </div>
-                </motion.div>
-              </motion.div>
+                insight={row}
+                index={i}
+                editMode={editMode}
+                onDelete={() => handleRemove(row.id)}
+                desktop={true}
+                deleteBorderColor="#FFFFFF"
+              />
             ))}
 
             {/* Empty state / add tile */}

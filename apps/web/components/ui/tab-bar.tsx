@@ -1,4 +1,6 @@
+'use client'
 import React from 'react'
+import { motion } from 'framer-motion'
 import { Icon } from './icon'
 
 type TabName = 'chat' | 'insights' | 'data'
@@ -31,7 +33,10 @@ export function TabBar({ active, onTab }: TabBarProps) {
         zIndex: 100,
       }}
     >
-      <div
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', damping: 22, stiffness: 240, delay: 0.1 }}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -46,10 +51,13 @@ export function TabBar({ active, onTab }: TabBarProps) {
         {TABS.map((tab) => {
           const isActive = active === tab.name
           return (
-            <button
+            <motion.button
               key={tab.name}
               onClick={() => onTab(tab.name)}
+              whileTap={{ scale: 0.92 }}
+              transition={{ type: 'spring', damping: 18, stiffness: 300 }}
               style={{
+                position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -59,43 +67,61 @@ export function TabBar({ active, onTab }: TabBarProps) {
                 border: 'none',
                 cursor: 'pointer',
                 background: isActive ? tab.accent + '18' : 'transparent',
-                transition: 'all 0.2s ease',
                 minWidth: 72,
               }}
             >
               <div
                 style={{
+                  position: 'relative',
                   width: 48,
                   height: 32,
-                  borderRadius: 999,
-                  background: isActive ? tab.accent : 'transparent',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  transition: 'all 0.2s ease',
                 }}
               >
-                <Icon
-                  name={tab.icon}
-                  size={20}
-                  color={isActive ? '#FFFFFF' : '#8A8070'}
-                />
+                {isActive && (
+                  <motion.div
+                    layoutId="tab-bar-active-pill"
+                    transition={{ type: 'spring', damping: 24, stiffness: 320 }}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      borderRadius: 999,
+                      background: tab.accent,
+                    }}
+                  />
+                )}
+                <motion.div
+                  animate={{ scale: isActive ? 1.05 : 1 }}
+                  transition={{ type: 'spring', damping: 18, stiffness: 340 }}
+                  style={{ position: 'relative', zIndex: 1, display: 'flex' }}
+                >
+                  <Icon
+                    name={tab.icon}
+                    size={20}
+                    color={isActive ? '#FFFFFF' : '#8A8070'}
+                  />
+                </motion.div>
               </div>
-              <span
+              <motion.span
+                animate={{
+                  color: isActive ? '#1F1A15' : '#8A8070',
+                  fontWeight: isActive ? 600 : 400,
+                }}
+                transition={{ duration: 0.2 }}
                 style={{
                   fontFamily: "'Rubik', system-ui, sans-serif",
                   fontSize: 11,
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? '#1F1A15' : '#8A8070',
                   lineHeight: 1,
                 }}
               >
                 {tab.label}
-              </span>
-            </button>
+              </motion.span>
+            </motion.button>
           )
         })}
-      </div>
+      </motion.div>
     </div>
   )
 }

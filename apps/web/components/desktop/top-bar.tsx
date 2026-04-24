@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Icon } from '../ui/icon'
 
 /**
@@ -53,10 +54,19 @@ export function TopBar({
         zIndex: 10,
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1F1A15', letterSpacing: -0.5, margin: 0 }}>
-          {title}
-        </h1>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, minWidth: 0 }}>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.h1
+            key={title}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            style={{ fontSize: 22, fontWeight: 700, color: '#1F1A15', letterSpacing: -0.5, margin: 0 }}
+          >
+            {title}
+          </motion.h1>
+        </AnimatePresence>
         <span style={{ fontSize: 13, color: '#8A8070' }}>
           {new Date().toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long' })}
         </span>
@@ -76,27 +86,44 @@ export function TopBar({
           borderRadius: 10,
         }}
       >
-        {RANGES.map((r) => (
-          <button
-            key={r}
-            onClick={() => setRange(r)}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 7,
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: "'Rubik', system-ui, sans-serif",
-              fontSize: 12,
-              fontWeight: range === r ? 600 : 500,
-              color: range === r ? '#1F1A15' : '#8A8070',
-              background: range === r ? '#FFFFFF' : 'transparent',
-              boxShadow: range === r ? '0 1px 2px rgba(31,26,21,0.08)' : 'none',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            {r}
-          </button>
-        ))}
+        {RANGES.map((r) => {
+          const active = range === r
+          return (
+            <motion.button
+              key={r}
+              onClick={() => setRange(r)}
+              whileTap={{ scale: 0.94 }}
+              style={{
+                position: 'relative',
+                padding: '6px 12px',
+                borderRadius: 7,
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: "'Rubik', system-ui, sans-serif",
+                fontSize: 12,
+                fontWeight: active ? 600 : 500,
+                color: active ? '#1F1A15' : '#8A8070',
+                background: 'transparent',
+              }}
+            >
+              {active && (
+                <motion.span
+                  layoutId="topbar-range-pill"
+                  transition={{ type: 'spring', damping: 26, stiffness: 340 }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: '#FFFFFF',
+                    borderRadius: 7,
+                    boxShadow: '0 1px 2px rgba(31,26,21,0.08)',
+                    zIndex: 0,
+                  }}
+                />
+              )}
+              <span style={{ position: 'relative', zIndex: 1 }}>{r}</span>
+            </motion.button>
+          )
+        })}
       </div>
 
       {/* Search */}
@@ -131,10 +158,13 @@ export function TopBar({
       </div>
 
       {/* Notifications */}
-      <button
+      <motion.button
         onClick={() => onNav('notifications')}
         aria-label="התראות"
         title="התראות"
+        whileHover={{ background: 'rgba(255,255,255,0.95)', y: -1 }}
+        whileTap={{ scale: 0.92 }}
+        transition={{ type: 'spring', damping: 18, stiffness: 320 }}
         style={{
           width: 38,
           height: 38,
@@ -149,7 +179,9 @@ export function TopBar({
         }}
       >
         <Icon name="bell" size={17} color="#4A4237" />
-        <span
+        <motion.span
+          animate={{ scale: [1, 1.25, 1] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut' }}
           style={{
             position: 'absolute',
             top: 8,
@@ -161,11 +193,14 @@ export function TopBar({
             border: '1.5px solid #F7F5E8',
           }}
         />
-      </button>
+      </motion.button>
 
       {/* Quick add */}
-      <button
+      <motion.button
         onClick={onAddTx}
+        whileHover={{ y: -1, background: '#2a2218', boxShadow: '0 6px 16px rgba(31,26,21,0.2)' }}
+        whileTap={{ scale: 0.96 }}
+        transition={{ type: 'spring', damping: 18, stiffness: 300 }}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -183,7 +218,7 @@ export function TopBar({
       >
         <Icon name="plus" size={15} color="#F7F5E8" />
         עסקה חדשה
-      </button>
+      </motion.button>
     </header>
   )
 }

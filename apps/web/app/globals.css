@@ -94,3 +94,29 @@ body {
     display: grid !important;
   }
 }
+
+/* ────────────────────────────────────────────────
+   Force mobile preview — activated by `?m=1` URL flag
+   or by the NEXT_PUBLIC_FORCE_MOBILE env var. Applies
+   a `force-mobile` class to <html> from page.tsx.
+
+   Overrides the desktop media query at any viewport
+   width so the mobile shell renders centered in a
+   420px "phone frame" on a dark backdrop.
+   ──────────────────────────────────────────────── */
+html.force-mobile body .fini-desktop-shell {
+  display: none !important;
+}
+html.force-mobile body .fini-shell {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  min-height: 100vh !important;
+  background: #2a2218 !important;
+}
+html.force-mobile body .fini-shell__phone {
+  width: 420px !important;
+  max-width: 420px !important;
+  min-height: 100vh !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35) !important;
+}

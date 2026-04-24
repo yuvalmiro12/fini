@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { ObWelcome, ObGoal, ObIncome, ObPlan, ObTrial } from '../components/screens/onboarding'
 import { ChatMain } from '../components/screens/chat'
 import { InsightsMain, SavingsGoal } from '../components/screens/insights'
@@ -57,6 +58,19 @@ export default function Page() {
       const savedName = localStorage.getItem('userName')
       if (savedName) setUserName(savedName)
     } catch {}
+
+    // Force-mobile preview: ?m=1 URL flag OR NEXT_PUBLIC_FORCE_MOBILE env.
+    // When on, <html> gets `force-mobile` class which activates CSS
+    // overrides in globals.css that hide DesktopShell and constrain the
+    // mobile shell to a 420px phone frame on a dark backdrop.
+    try {
+      const fromUrl = new URLSearchParams(window.location.search).get('m') === '1'
+      const fromEnv = process.env.NEXT_PUBLIC_FORCE_MOBILE === '1'
+      if (fromUrl || fromEnv) {
+        document.documentElement.classList.add('force-mobile')
+      }
+    } catch {}
+
     setHydrated(true)
   }, [])
 
@@ -187,7 +201,18 @@ export default function Page() {
         <div className="fini-shell__phone">
           <div className="fini-shell__main-inner">
             {hydrated ? (
-              renderScreen()
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={screen}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+                >
+                  {renderScreen()}
+                </motion.div>
+              </AnimatePresence>
             ) : (
               <div
                 style={{

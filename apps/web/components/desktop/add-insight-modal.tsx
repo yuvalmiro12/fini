@@ -8,6 +8,7 @@ import {
   generateInsightFromPrompt,
   type Insight,
 } from '../../lib/insight-templates'
+import { InsightCard } from '../insights/insight-card'
 
 /**
  * AddInsightModal — two-tab modal for adding a new insight card.
@@ -379,49 +380,15 @@ export function AddInsightModal({ open, onClose, onAdd, existingIds }: Props) {
                           <div style={{ fontSize: 11, fontWeight: 600, color: '#8A8070', marginBottom: 8, letterSpacing: 0.3, textTransform: 'uppercase' }}>
                             תצוגה מקדימה
                           </div>
-                          <div
-                            style={{
-                              background: '#FFFFFF',
-                              border: '2px solid #C85A8A',
-                              borderRadius: 12,
-                              padding: 16,
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 12,
-                              marginBottom: 12,
-                            }}
-                          >
-                            <div
-                              style={{
-                                width: 44,
-                                height: 44,
-                                borderRadius: 11,
-                                background: preview.tint,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                flexShrink: 0,
-                              }}
-                            >
-                              <Icon name={preview.icon} size={22} color={preview.ink} />
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 14, fontWeight: 600, color: '#1F1A15' }}>{preview.title}</div>
-                              <div style={{ fontSize: 12, color: '#4A4237', marginTop: 2 }}>{preview.subtitle}</div>
-                            </div>
-                            <div
-                              style={{
-                                fontSize: 13,
-                                fontWeight: 700,
-                                color: preview.positive ? '#5B8E6F' : '#D47070',
-                                padding: '4px 10px',
-                                borderRadius: 99,
-                                background: preview.positive ? '#DDEEDF' : '#FADEDC',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {preview.value}
-                            </div>
+                          <div style={{ marginBottom: 12, border: '2px solid #C85A8A', borderRadius: 14, padding: 2, background: '#FFF5F9' }}>
+                            <InsightCard
+                              insight={preview}
+                              index={0}
+                              editMode={false}
+                              onDelete={() => {}}
+                              desktop={true}
+                              deleteBorderColor="#FFF5F9"
+                            />
                           </div>
 
                           <div style={{ display: 'flex', gap: 8 }}>

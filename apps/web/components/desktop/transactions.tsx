@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Icon } from '../ui/icon'
 import { CatIcon } from '../ui/cat-icon'
 import { CATS } from '../../lib/cats'
@@ -66,7 +67,10 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
       }}
     >
       {/* Filter sidebar */}
-      <aside
+      <motion.aside
+        initial={{ opacity: 0, x: 12 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         style={{
           background: '#FFFFFF',
           border: '1px solid rgba(31,26,21,0.06)',
@@ -78,12 +82,17 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
       >
         <div style={{ fontSize: 12, color: '#8A8070', fontWeight: 600, marginBottom: 10, letterSpacing: 0.3 }}>סינון</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 18 }}>
-          {FILTER_OPTS.map((opt) => {
+          {FILTER_OPTS.map((opt, i) => {
             const active = filter === opt.key
             return (
-              <button
+              <motion.button
                 key={opt.key}
                 onClick={() => setFilter(opt.key as typeof filter)}
+                initial={{ opacity: 0, x: 6 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + i * 0.04, duration: 0.22 }}
+                whileHover={{ background: 'rgba(90,111,184,0.05)' }}
+                whileTap={{ scale: 0.97 }}
                 style={{
                   textAlign: 'right',
                   padding: '8px 12px',
@@ -99,15 +108,20 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
                 }}
               >
                 {opt.label}
-              </button>
+              </motion.button>
             )
           })}
         </div>
 
         <div style={{ fontSize: 12, color: '#8A8070', fontWeight: 600, marginBottom: 10, letterSpacing: 0.3 }}>קטגוריות</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <button
+          <motion.button
             onClick={() => setCatFilter(null)}
+            initial={{ opacity: 0, x: 6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.28, duration: 0.22 }}
+            whileHover={{ background: 'rgba(90,111,184,0.05)' }}
+            whileTap={{ scale: 0.97 }}
             style={{
               textAlign: 'right',
               padding: '8px 12px',
@@ -126,15 +140,20 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
           >
             <span>הכל</span>
             <span style={{ fontSize: 11, color: '#8A8070' }}>{transactions.length}</span>
-          </button>
-          {catCounts.map(([cat, n]) => {
+          </motion.button>
+          {catCounts.map(([cat, n], i) => {
             const catDef = CATS[cat]
             if (!catDef) return null
             const active = catFilter === cat
             return (
-              <button
+              <motion.button
                 key={cat}
                 onClick={() => setCatFilter(cat)}
+                initial={{ opacity: 0, x: 6 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.32 + i * 0.03, duration: 0.22 }}
+                whileHover={{ background: 'rgba(90,111,184,0.05)' }}
+                whileTap={{ scale: 0.97 }}
                 style={{
                   padding: '8px 12px',
                   borderRadius: 8,
@@ -154,11 +173,11 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
                 <CatIcon cat={cat} size={20} radius={6} />
                 <span style={{ flex: 1, textAlign: 'right' }}>{catDef.label}</span>
                 <span style={{ fontSize: 11, color: '#8A8070' }}>{n}</span>
-              </button>
+              </motion.button>
             )
           })}
         </div>
-      </aside>
+      </motion.aside>
 
       {/* Main table */}
       <div>
@@ -265,7 +284,12 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
           </div>
 
           {filtered.length === 0 ? (
-            <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              style={{ padding: '60px 20px', textAlign: 'center' }}
+            >
               <div
                 style={{
                   width: 56,
@@ -282,77 +306,78 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
               </div>
               <div style={{ fontSize: 15, fontWeight: 600, color: '#1F1A15', marginBottom: 4 }}>לא נמצאו עסקאות</div>
               <div style={{ fontSize: 13, color: '#8A8070' }}>נסה לשנות את הסינון או לחפש משהו אחר</div>
-            </div>
+            </motion.div>
           ) : (
-            filtered.map((tx, i) => {
-              const catDef = CATS[tx.category]
-              return (
-                <div
-                  key={tx.id}
-                  onClick={() => onSelectTx(tx.id)}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '44px 1fr 180px 140px 120px 40px',
-                    gap: 12,
-                    padding: '14px 20px',
-                    borderBottom: i < filtered.length - 1 ? '1px solid rgba(31,26,21,0.05)' : 'none',
-                    cursor: 'pointer',
-                    alignItems: 'center',
-                    transition: 'background 0.12s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#FAFAF5'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent'
-                  }}
-                >
-                  <CatIcon cat={tx.category} size={36} radius={9} />
-                  <div style={{ minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 500,
-                        color: '#1F1A15',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tx.title}</span>
-                      {tx.flagged && (
-                        <span
-                          style={{
-                            background: '#F3E7C7',
-                            color: '#C9A24D',
-                            fontSize: 10,
-                            fontWeight: 600,
-                            padding: '2px 6px',
-                            borderRadius: 4,
-                          }}
-                        >
-                          מסומן
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ fontSize: 11, color: '#8A8070', marginTop: 2 }}>{tx.time}</div>
-                  </div>
-                  <div style={{ fontSize: 13, color: '#4A4237' }}>{catDef?.label}</div>
-                  <div style={{ fontSize: 13, color: '#8A8070' }}>{tx.date}</div>
-                  <div
+            <AnimatePresence mode="popLayout" initial={true}>
+              {filtered.map((tx, i) => {
+                const catDef = CATS[tx.category]
+                return (
+                  <motion.div
+                    key={tx.id}
+                    layout
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    transition={{ delay: Math.min(i * 0.025, 0.6), duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ background: '#FAFAF5', x: -2 }}
+                    onClick={() => onSelectTx(tx.id)}
                     style={{
-                      textAlign: 'left',
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: tx.type === 'income' ? '#5B8E6F' : '#D47070',
+                      display: 'grid',
+                      gridTemplateColumns: '44px 1fr 180px 140px 120px 40px',
+                      gap: 12,
+                      padding: '14px 20px',
+                      borderBottom: i < filtered.length - 1 ? '1px solid rgba(31,26,21,0.05)' : 'none',
+                      cursor: 'pointer',
+                      alignItems: 'center',
                     }}
                   >
-                    {tx.type === 'income' ? '+' : '-'}₪{tx.amount.toLocaleString()}
-                  </div>
-                  <Icon name="chevron-left" size={16} color="#C0B8AD" />
-                </div>
-              )
-            })
+                    <CatIcon cat={tx.category} size={36} radius={9} />
+                    <div style={{ minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 500,
+                          color: '#1F1A15',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                        }}
+                      >
+                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tx.title}</span>
+                        {tx.flagged && (
+                          <span
+                            style={{
+                              background: '#F3E7C7',
+                              color: '#C9A24D',
+                              fontSize: 10,
+                              fontWeight: 600,
+                              padding: '2px 6px',
+                              borderRadius: 4,
+                            }}
+                          >
+                            מסומן
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 11, color: '#8A8070', marginTop: 2 }}>{tx.time}</div>
+                    </div>
+                    <div style={{ fontSize: 13, color: '#4A4237' }}>{catDef?.label}</div>
+                    <div style={{ fontSize: 13, color: '#8A8070' }}>{tx.date}</div>
+                    <div
+                      style={{
+                        textAlign: 'left',
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: tx.type === 'income' ? '#5B8E6F' : '#D47070',
+                      }}
+                    >
+                      {tx.type === 'income' ? '+' : '-'}₪{tx.amount.toLocaleString()}
+                    </div>
+                    <Icon name="chevron-left" size={16} color="#C0B8AD" />
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
           )}
         </div>
       </div>

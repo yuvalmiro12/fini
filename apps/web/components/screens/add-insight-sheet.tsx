@@ -8,6 +8,7 @@ import {
   generateInsightFromPrompt,
   type Insight,
 } from '../../lib/insight-templates'
+import { InsightCard } from '../insights/insight-card'
 
 /**
  * AddInsightSheet — mobile bottom-sheet counterpart to the desktop
@@ -427,55 +428,15 @@ export function AddInsightSheet({ open, onClose, onAdd, existingIds }: Props) {
                           >
                             תצוגה מקדימה
                           </div>
-                          <div
-                            style={{
-                              background: '#FFFFFF',
-                              border: '2px solid #C85A8A',
-                              borderRadius: 12,
-                              padding: 14,
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 10,
-                              marginBottom: 10,
-                            }}
-                          >
-                            <div
-                              style={{
-                                width: 40,
-                                height: 40,
-                                borderRadius: 10,
-                                background: preview.tint,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                flexShrink: 0,
-                              }}
-                            >
-                              <Icon name={preview.icon} size={20} color={preview.ink} />
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div
-                                style={{ fontSize: 13, fontWeight: 600, color: '#1F1A15' }}
-                              >
-                                {preview.title}
-                              </div>
-                              <div style={{ fontSize: 11, color: '#4A4237', marginTop: 2 }}>
-                                {preview.subtitle}
-                              </div>
-                            </div>
-                            <div
-                              style={{
-                                fontSize: 11,
-                                fontWeight: 700,
-                                color: preview.positive ? '#5B8E6F' : '#D47070',
-                                padding: '3px 8px',
-                                borderRadius: 99,
-                                background: preview.positive ? '#DDEEDF' : '#FADEDC',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {preview.value}
-                            </div>
+                          <div style={{ marginBottom: 10, border: '2px solid #C85A8A', borderRadius: 14, padding: 2, background: '#FFF5F9' }}>
+                            <InsightCard
+                              insight={preview}
+                              index={0}
+                              editMode={false}
+                              onDelete={() => {}}
+                              desktop={false}
+                              deleteBorderColor="#FFF5F9"
+                            />
                           </div>
 
                           <div style={{ display: 'flex', gap: 8 }}>

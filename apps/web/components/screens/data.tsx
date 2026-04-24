@@ -1,10 +1,12 @@
 'use client'
 import React, { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Icon } from '../ui/icon'
 import { CatIcon } from '../ui/cat-icon'
 import { FiniAvatar } from '../ui/fini-mascot'
 import { TabBar } from '../ui/tab-bar'
 import { StatusBar } from '../ui/status-bar'
+import { CountUp } from '../ui/count-up'
 import { CATS } from '../../lib/cats'
 import type { Transaction, SavingsGoal } from '../../lib/seed'
 
@@ -42,8 +44,24 @@ function LineChart({ transactions }: { transactions: Transaction[] }) {
           <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <path d={areaPath} fill="url(#chartGrad2)" />
-      <path d={path} stroke="rgba(255,255,255,0.9)" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <motion.path
+        d={areaPath}
+        fill="url(#chartGrad2)"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.7, duration: 0.5 }}
+      />
+      <motion.path
+        d={path}
+        stroke="rgba(255,255,255,0.9)"
+        strokeWidth="2"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ delay: 0.35, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      />
     </svg>
   )
 }
@@ -82,18 +100,33 @@ export function DataMain({ nav, transactions, savingsGoal }: ScreenProps) {
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 100px' }}>
         {/* Hero balance card */}
-        <div style={{ background: 'linear-gradient(135deg, #5A6FB8 0%, #3D539A 100%)', borderRadius: 20, padding: 20, marginBottom: 14, position: 'relative', overflow: 'hidden' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          style={{ background: 'linear-gradient(135deg, #5A6FB8 0%, #3D539A 100%)', borderRadius: 20, padding: 20, marginBottom: 14, position: 'relative', overflow: 'hidden' }}
+        >
           <div style={{ position: 'absolute', top: -30, left: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
           <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>
             הוצאות {new Date().toLocaleDateString('he-IL', { month: 'long', year: 'numeric' })}
           </div>
           <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 36, fontWeight: 700, color: '#FFFFFF', marginBottom: 16 }}>
-            ₪{totalExp.toLocaleString()}
+            <CountUp value={totalExp} prefix="₪" duration={1.2} delay={0.12} />
           </div>
           <div style={{ marginBottom: 8 }}>
-            <div style={{ display: 'flex', borderRadius: 99, overflow: 'hidden', height: 10 }}>
-              <div style={{ width: `${incPct}%`, background: '#5B8E6F', transition: 'width 0.6s ease' }} />
-              <div style={{ width: `${expPct}%`, background: '#D47070', transition: 'width 0.6s ease' }} />
+            <div style={{ display: 'flex', borderRadius: 99, overflow: 'hidden', height: 10, background: 'rgba(255,255,255,0.15)' }}>
+              <motion.div
+                initial={{ width: '0%' }}
+                animate={{ width: `${incPct}%` }}
+                transition={{ delay: 0.25, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+                style={{ background: '#5B8E6F' }}
+              />
+              <motion.div
+                initial={{ width: '0%' }}
+                animate={{ width: `${expPct}%` }}
+                transition={{ delay: 0.4, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+                style={{ background: '#D47070' }}
+              />
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -109,30 +142,53 @@ export function DataMain({ nav, transactions, savingsGoal }: ScreenProps) {
           <div style={{ marginTop: 14 }}>
             <LineChart transactions={transactions} />
           </div>
-        </div>
+        </motion.div>
 
         {/* 2-up cards */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
-          <div onClick={() => nav('savingsGoal')} style={{ flex: 1, background: 'rgba(255,255,255,0.8)', borderRadius: 16, padding: 14, cursor: 'pointer' }}>
+          <motion.div
+            onClick={() => nav('savingsGoal')}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18, duration: 0.35 }}
+            whileTap={{ scale: 0.97 }}
+            style={{ flex: 1, background: 'rgba(255,255,255,0.8)', borderRadius: 16, padding: 14, cursor: 'pointer' }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
               <Icon name="piggy" size={16} color="#5B8E6F" />
               <span style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: '#8A8070' }}>חיסכון YTD</span>
             </div>
-            <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 22, fontWeight: 700, color: '#5B8E6F' }}>₪{(savingsGoal?.current || 8400).toLocaleString()}</div>
+            <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 22, fontWeight: 700, color: '#5B8E6F' }}>
+              <CountUp value={savingsGoal?.current || 8400} prefix="₪" duration={1.1} delay={0.32} />
+            </div>
             <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: '#4A4237', marginTop: 2 }}>מתוך יעד ₪{(savingsGoal?.target || 15000).toLocaleString()}</div>
-          </div>
-          <div onClick={() => nav('couples')} style={{ flex: 1, background: 'rgba(255,255,255,0.8)', borderRadius: 16, padding: 14, cursor: 'pointer' }}>
+          </motion.div>
+          <motion.div
+            onClick={() => nav('couples')}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.26, duration: 0.35 }}
+            whileTap={{ scale: 0.97 }}
+            style={{ flex: 1, background: 'rgba(255,255,255,0.8)', borderRadius: 16, padding: 14, cursor: 'pointer' }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
               <Icon name="users" size={16} color="#C85A8A" />
               <span style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: '#8A8070' }}>תקציב משותף</span>
             </div>
-            <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 22, fontWeight: 700, color: '#C85A8A' }}>₪5,340</div>
+            <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 22, fontWeight: 700, color: '#C85A8A' }}>
+              <CountUp value={5340} prefix="₪" duration={1.1} delay={0.4} />
+            </div>
             <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: '#4A4237', marginTop: 2 }}>מתוך ₪8,000 החודש</div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Category breakdown */}
-        <div style={{ background: 'rgba(255,255,255,0.8)', borderRadius: 18, padding: '16px' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.4 }}
+          style={{ background: 'rgba(255,255,255,0.8)', borderRadius: 18, padding: '16px' }}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <span style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 15, fontWeight: 700, color: '#1F1A15' }}>לפי קטגוריה</span>
             <button onClick={() => nav('transactions')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, color: '#5A6FB8', fontWeight: 500 }}>הכל</button>
@@ -141,27 +197,40 @@ export function DataMain({ nav, transactions, savingsGoal }: ScreenProps) {
             <div style={{ textAlign: 'center', padding: '20px 0', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, color: '#8A8070' }}>אין עסקאות עדיין</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {catBreakdown.map(item => {
+              {catBreakdown.map((item, i) => {
                 const catDef = CATS[item.cat]
                 if (!catDef) return null
                 return (
-                  <div key={item.cat} onClick={() => nav('transactions')} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                  <motion.div
+                    key={item.cat}
+                    onClick={() => nav('transactions')}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.48 + i * 0.06, duration: 0.32 }}
+                    whileTap={{ scale: 0.98 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+                  >
                     <CatIcon cat={item.cat} size={36} radius={10} />
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                         <span style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, fontWeight: 500, color: '#1F1A15' }}>{catDef.label}</span>
                         <span style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, fontWeight: 600, color: '#4A4237' }}>₪{item.amount.toLocaleString()}</span>
                       </div>
-                      <div style={{ background: 'rgba(31,26,21,0.08)', borderRadius: 99, height: 5, position: 'relative' }}>
-                        <div style={{ position: 'absolute', right: 0, top: 0, height: '100%', width: `${item.pct}%`, background: catDef.ink, borderRadius: 99 }} />
+                      <div style={{ background: 'rgba(31,26,21,0.08)', borderRadius: 99, height: 5, position: 'relative', overflow: 'hidden' }}>
+                        <motion.div
+                          initial={{ width: '0%' }}
+                          animate={{ width: `${item.pct}%` }}
+                          transition={{ delay: 0.6 + i * 0.07, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                          style={{ position: 'absolute', right: 0, top: 0, height: '100%', background: catDef.ink, borderRadius: 99 }}
+                        />
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 )
               })}
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
 
       <TabBar active="data" onTab={t => nav(t)} />
@@ -222,10 +291,29 @@ export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps)
       </div>
 
       <div style={{ padding: '0 16px 12px', display: 'flex', gap: 8 }}>
-        {FILTER_CHIPS.map(chip => (
-          <button key={chip} onClick={() => setActiveFilter(chip)} style={{ padding: '6px 14px', borderRadius: 99, border: 'none', background: activeFilter === chip ? '#5A6FB8' : 'rgba(255,255,255,0.7)', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, fontWeight: 500, color: activeFilter === chip ? '#FFFFFF' : '#4A4237', cursor: 'pointer' }}>
+        {FILTER_CHIPS.map((chip, i) => (
+          <motion.button
+            key={chip}
+            onClick={() => setActiveFilter(chip)}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.04, duration: 0.22 }}
+            whileTap={{ scale: 0.94 }}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 99,
+              border: 'none',
+              background: activeFilter === chip ? '#5A6FB8' : 'rgba(255,255,255,0.7)',
+              fontFamily: "'Rubik', system-ui, sans-serif",
+              fontSize: 12,
+              fontWeight: 500,
+              color: activeFilter === chip ? '#FFFFFF' : '#4A4237',
+              cursor: 'pointer',
+              transition: 'background 0.2s ease, color 0.2s ease',
+            }}
+          >
             {chip}
-          </button>
+          </motion.button>
         ))}
       </div>
 
@@ -287,12 +375,26 @@ export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps)
             </div>
           )
         ) : (
-          Object.entries(groups).map(([date, txs]) => (
-            <div key={date} style={{ marginBottom: 14 }}>
+          Object.entries(groups).map(([date, txs], g) => (
+            <motion.div
+              key={date}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.05 + g * 0.05, duration: 0.25 }}
+              style={{ marginBottom: 14 }}
+            >
               <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, fontWeight: 600, color: '#8A8070', marginBottom: 8 }}>{date}</div>
               <div style={{ background: 'rgba(255,255,255,0.8)', borderRadius: 16, overflow: 'hidden' }}>
                 {txs.map((tx, i) => (
-                  <div key={tx.id} onClick={() => onSelectTx(tx.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderBottom: i < txs.length - 1 ? '1px solid rgba(31,26,21,0.05)' : 'none', cursor: 'pointer' }}>
+                  <motion.div
+                    key={tx.id}
+                    onClick={() => onSelectTx(tx.id)}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.12 + g * 0.05 + i * 0.03, duration: 0.25 }}
+                    whileTap={{ scale: 0.99, background: 'rgba(90,111,184,0.05)' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderBottom: i < txs.length - 1 ? '1px solid rgba(31,26,21,0.05)' : 'none', cursor: 'pointer' }}
+                  >
                     <CatIcon cat={tx.category} size={40} radius={11} />
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -308,10 +410,10 @@ export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps)
                     <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 15, fontWeight: 700, color: tx.type === 'income' ? '#5B8E6F' : '#D47070' }}>
                       {tx.type === 'income' ? '+' : '-'}₪{tx.amount.toLocaleString()}
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           ))
         )}
       </div>

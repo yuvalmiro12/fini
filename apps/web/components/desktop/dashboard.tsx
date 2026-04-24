@@ -1,7 +1,9 @@
 'use client'
 import React from 'react'
+import { motion } from 'framer-motion'
 import { Icon } from '../ui/icon'
 import { CatIcon } from '../ui/cat-icon'
+import { CountUp } from '../ui/count-up'
 import { CATS } from '../../lib/cats'
 import type { Transaction, SavingsGoal } from '../../lib/seed'
 
@@ -50,8 +52,24 @@ function SparkChart({ transactions, height = 120 }: { transactions: Transaction[
           <stop offset="100%" stopColor="#5A6FB8" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <path d={areaPath} fill="url(#dashSpark)" />
-      <path d={path} stroke="#5A6FB8" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <motion.path
+        d={areaPath}
+        fill="url(#dashSpark)"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.9, duration: 0.5 }}
+      />
+      <motion.path
+        d={path}
+        stroke="#5A6FB8"
+        strokeWidth="2"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ delay: 0.3, duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+      />
     </svg>
   )
 }
@@ -59,19 +77,29 @@ function SparkChart({ transactions, height = 120 }: { transactions: Transaction[
 function MetricCard({
   label,
   value,
+  numericValue,
+  prefix,
   delta,
   tone,
   icon,
+  index,
 }: {
   label: string
   value: string
+  numericValue?: number
+  prefix?: string
   delta: string
   tone: 'neutral' | 'up' | 'down'
   icon: string
+  index: number
 }) {
   const deltaColor = tone === 'up' ? '#5B8E6F' : tone === 'down' ? '#D47070' : '#8A8070'
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.05 + index * 0.08, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(31,26,21,0.08)' }}
       style={{
         background: '#FFFFFF',
         border: '1px solid rgba(31,26,21,0.06)',
@@ -83,7 +111,10 @@ function MetricCard({
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <span style={{ fontSize: 12, color: '#8A8070', fontWeight: 500 }}>{label}</span>
-        <div
+        <motion.div
+          initial={{ rotate: -15, scale: 0.7, opacity: 0 }}
+          animate={{ rotate: 0, scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2 + index * 0.08, type: 'spring', damping: 18, stiffness: 300 }}
           style={{
             width: 32,
             height: 32,
@@ -95,13 +126,24 @@ function MetricCard({
           }}
         >
           <Icon name={icon} size={16} color="#5A6FB8" />
-        </div>
+        </motion.div>
       </div>
       <div style={{ fontSize: 28, fontWeight: 700, color: '#1F1A15', letterSpacing: -0.5, marginBottom: 6 }}>
-        {value}
+        {typeof numericValue === 'number' ? (
+          <CountUp value={numericValue} prefix={prefix ?? ''} duration={1.1} delay={0.2 + index * 0.08} />
+        ) : (
+          value
+        )}
       </div>
-      <div style={{ fontSize: 12, color: deltaColor, fontWeight: 500 }}>{delta}</div>
-    </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.55 + index * 0.08, duration: 0.25 }}
+        style={{ fontSize: 12, color: deltaColor, fontWeight: 500 }}
+      >
+        {delta}
+      </motion.div>
+    </motion.div>
   )
 }
 
@@ -147,29 +189,41 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
         <MetricCard
           label="יתרה נטו"
           value={`₪${net.toLocaleString()}`}
+          numericValue={net}
+          prefix="₪"
           delta={net >= 0 ? '▲ ' + Math.round((net / Math.max(totalInc, 1)) * 100) + '% חיסכון' : '▼ גירעון'}
           tone={net >= 0 ? 'up' : 'down'}
           icon="wallet"
+          index={0}
         />
         <MetricCard
           label="הכנסות החודש"
           value={`₪${totalInc.toLocaleString()}`}
+          numericValue={totalInc}
+          prefix="₪"
           delta={`${incomes.length} תקבולים`}
           tone="up"
           icon="trend"
+          index={1}
         />
         <MetricCard
           label="הוצאות החודש"
           value={`₪${totalExp.toLocaleString()}`}
+          numericValue={totalExp}
+          prefix="₪"
           delta={`${expenses.length} עסקאות`}
           tone="down"
           icon="receipt"
+          index={2}
         />
       </div>
 
       {/* Row 2 — spend trend + savings goal */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 18 }}>
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.32, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           style={{
             background: '#FFFFFF',
             border: '1px solid rgba(31,26,21,0.06)',
@@ -181,10 +235,12 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
             <div>
               <div style={{ fontSize: 11, color: '#8A8070', fontWeight: 500, marginBottom: 3 }}>מגמת הוצאות — 30 ימים</div>
               <div style={{ fontSize: 22, fontWeight: 700, color: '#1F1A15', letterSpacing: -0.5 }}>
-                ₪{totalExp.toLocaleString()}
+                <CountUp value={totalExp} prefix="₪" duration={1.0} delay={0.4} />
               </div>
             </div>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03, background: 'rgba(31,26,21,0.03)' }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => nav('insights')}
               style={{
                 background: 'transparent',
@@ -199,14 +255,19 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
               }}
             >
               תובנות
-            </button>
+            </motion.button>
           </div>
           <div style={{ marginTop: 14 }}>
             <SparkChart transactions={transactions} height={140} />
           </div>
-        </div>
+        </motion.div>
 
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          whileHover={{ y: -2, boxShadow: '0 10px 30px rgba(91,142,111,0.25)' }}
+          whileTap={{ scale: 0.99 }}
           onClick={() => nav('savingsGoal')}
           style={{
             background: 'linear-gradient(135deg, #5B8E6F 0%, #3F6850 100%)',
@@ -218,7 +279,10 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
             overflow: 'hidden',
           }}
         >
-          <div
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             style={{
               position: 'absolute',
               top: -40,
@@ -232,30 +296,41 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginBottom: 6 }}>יעד חיסכון</div>
           <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 18 }}>{savingsGoal.title}</div>
           <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: -0.5, marginBottom: 2 }}>
-            ₪{savingsGoal.current.toLocaleString()}
+            <CountUp value={savingsGoal.current} prefix="₪" duration={1.0} delay={0.55} />
           </div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 14 }}>
             מתוך ₪{savingsGoal.target.toLocaleString()}
           </div>
           <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 99, height: 8, overflow: 'hidden' }}>
-            <div
+            <motion.div
+              initial={{ width: '0%' }}
+              animate={{ width: `${goalPct}%` }}
+              transition={{ delay: 0.55, duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
               style={{
                 height: '100%',
-                width: `${goalPct}%`,
                 background: '#FFFFFF',
                 borderRadius: 99,
-                transition: 'width 0.6s ease',
               }}
             />
           </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 8 }}>{goalPct}% הושלמו</div>
-        </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.3 }}
+            style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 8 }}
+          >
+            {goalPct}% הושלמו
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Row 3 — categories + recent tx */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 16 }}>
         {/* Categories */}
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.48, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           style={{
             background: '#FFFFFF',
             border: '1px solid rgba(31,26,21,0.06)',
@@ -265,7 +340,9 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#1F1A15' }}>לפי קטגוריה</div>
-            <button
+            <motion.button
+              whileHover={{ color: '#2E4778' }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => nav('insights')}
               style={{
                 background: 'transparent',
@@ -278,7 +355,7 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
               }}
             >
               הצג הכל
-            </button>
+            </motion.button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {catBreakdown.length === 0 ? (
@@ -286,11 +363,17 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
                 אין עסקאות עדיין
               </div>
             ) : (
-              catBreakdown.map((item) => {
+              catBreakdown.map((item, i) => {
                 const catDef = CATS[item.cat]
                 if (!catDef) return null
                 return (
-                  <div key={item.cat} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <motion.div
+                    key={item.cat}
+                    initial={{ opacity: 0, x: 8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.55 + i * 0.05, duration: 0.3 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10 }}
+                  >
                     <CatIcon cat={item.cat} size={32} radius={9} />
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -299,31 +382,35 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
                           ₪{item.amount.toLocaleString()}
                         </span>
                       </div>
-                      <div style={{ background: 'rgba(31,26,21,0.06)', borderRadius: 99, height: 5, position: 'relative' }}>
-                        <div
+                      <div style={{ background: 'rgba(31,26,21,0.06)', borderRadius: 99, height: 5, position: 'relative', overflow: 'hidden' }}>
+                        <motion.div
+                          initial={{ width: '0%' }}
+                          animate={{ width: `${item.pct}%` }}
+                          transition={{ delay: 0.7 + i * 0.05, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                           style={{
                             position: 'absolute',
                             right: 0,
                             top: 0,
                             height: '100%',
-                            width: `${item.pct}%`,
                             background: catDef.ink,
                             borderRadius: 99,
-                            transition: 'width 0.6s ease',
                           }}
                         />
                       </div>
                     </div>
                     <span style={{ fontSize: 11, color: '#8A8070', minWidth: 28, textAlign: 'left' }}>{item.pct}%</span>
-                  </div>
+                  </motion.div>
                 )
               })
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Recent transactions table */}
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           style={{
             background: '#FFFFFF',
             border: '1px solid rgba(31,26,21,0.06)',
@@ -333,7 +420,9 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#1F1A15' }}>עסקאות אחרונות</div>
-            <button
+            <motion.button
+              whileHover={{ color: '#2E4778' }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => nav('transactions')}
               style={{
                 background: 'transparent',
@@ -346,7 +435,7 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
               }}
             >
               כל העסקאות
-            </button>
+            </motion.button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {recent.length === 0 ? (
@@ -357,8 +446,12 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
               recent.map((tx, i) => {
                 const catDef = CATS[tx.category]
                 return (
-                  <div
+                  <motion.div
                     key={tx.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.62 + i * 0.04, duration: 0.28 }}
+                    whileHover={{ background: 'rgba(90,111,184,0.04)' }}
                     style={{
                       display: 'grid',
                       gridTemplateColumns: '36px 1fr 120px 120px',
@@ -366,6 +459,7 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
                       gap: 12,
                       padding: '10px 4px',
                       borderBottom: i < recent.length - 1 ? '1px solid rgba(31,26,21,0.05)' : 'none',
+                      borderRadius: 6,
                     }}
                   >
                     <CatIcon cat={tx.category} size={32} radius={8} />
@@ -386,12 +480,12 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
                     >
                       {tx.type === 'income' ? '+' : '-'}₪{tx.amount.toLocaleString()}
                     </div>
-                  </div>
+                  </motion.div>
                 )
               })
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   )
