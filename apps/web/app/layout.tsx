@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import ConvexClientProvider from '../components/ConvexClientProvider'
 
 export const metadata: Metadata = {
   title: 'פיני',
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <body style={{ fontFamily: "'Rubik', system-ui, sans-serif" }}>
-        {children}
+        <ConvexClientProvider>
+          {children}
+        </ConvexClientProvider>
       </body>
     </html>
   )

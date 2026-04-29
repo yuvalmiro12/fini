@@ -8,6 +8,8 @@ import { TabBar } from '../ui/tab-bar'
 import { StatusBar } from '../ui/status-bar'
 import { CHAT_MESSAGES } from '../../lib/seed'
 import type { Transaction, ChatMessage } from '../../lib/seed'
+import { useAction } from "convex/react"
+import { api } from "../../convex/_generated/api"
 
 interface ScreenProps {
   nav: (screen: string) => void
@@ -530,16 +532,26 @@ export function ChatMain({ nav, transactions, userName = 'נועה' }: ScreenPro
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages, isTyping])
 
-  const handleSend = (text: string) => {
+  const ping = useAction(api.chat.ping)
+
+  const handleSend = async (text: string) => {
     if (isTyping) return
     const userMsg: ChatMessage = { id: `u${Date.now()}`, role: 'user', type: 'text', text }
     setMessages(prev => [...prev, userMsg])
     setIsTyping(true)
-    setTimeout(() => {
+    
+    try {
+      const aiResponse = await ping({ message: text })
+      const aiMsg: ChatMessage = { id: `ai${Date.now()}`, role: 'fini', type: 'text', text: aiResponse }
+      setMessages(prev => [...prev, aiMsg])
+    } catch (e) {
+      console.error(e)
+      // Fallback to mock behavior if Convex is not set up
       const responses = getAiResponse(text, transactions)
       setMessages(prev => [...prev, ...responses])
+    } finally {
       setIsTyping(false)
-    }, 900 + Math.random() * 600)
+    }
   }
 
   return (

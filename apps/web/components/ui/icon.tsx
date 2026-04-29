@@ -60,6 +60,13 @@ export function Icon({ name, size = 24, color = '#1F1A15', style }: IconProps) {
         return <path {...strokeProps} d="M19 12H5M11 6l-6 6 6 6" />
       case 'send':
         return <path {...strokeProps} d="M20 4L4 11l7 2 2 7z" />
+      case 'upload':
+        return (
+          <>
+            <path {...strokeProps} d="M12 15V3M8 7l4-4 4 4" />
+            <path {...strokeProps} d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+          </>
+        )
       case 'filter':
         return <path {...strokeProps} d="M4 5h16M7 12h10M10 19h4" />
       case 'search':

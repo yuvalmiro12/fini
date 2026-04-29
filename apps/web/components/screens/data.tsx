@@ -1,6 +1,8 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useAction, useMutation } from "convex/react"
+import { api } from "../../convex/_generated/api"
 import { Icon } from '../ui/icon'
 import { CatIcon } from '../ui/cat-icon'
 import { FiniAvatar } from '../ui/fini-mascot'
@@ -249,6 +251,31 @@ interface TxListProps {
 export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps) {
   const [activeFilter, setActiveFilter] = useState('הכל')
   const [searchText, setSearchText] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isUploading, setIsUploading] = useState(false)
+
+  const importCsv = useAction(api.import.importCsv)
+  const getOrCreateMockUser = useMutation(api.users.getOrCreateMockUser)
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      setIsUploading(true)
+      const text = await file.text()
+      const userId = await getOrCreateMockUser()
+      const result = await importCsv({ fileContent: text, userId })
+      alert(`מעולה! יובאו ${result.importedCount} עסקאות בהצלחה.`)
+      // Refresh logic would go here typically or handled via Convex subscriptions
+    } catch (err) {
+      console.error("Upload failed", err)
+      alert("שגיאה בהעלאת הקובץ. ודא שהשרת רץ.")
+    } finally {
+      setIsUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
 
   const today = new Date().toISOString().split('T')[0]
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
@@ -276,6 +303,16 @@ export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps)
           <Icon name="arrowL" size={16} color="#1F1A15" />
           חזור
         </button>
+        
+        <input type="file" accept=".csv" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
+        <button 
+          onClick={() => fileInputRef.current?.click()} 
+          disabled={isUploading}
+          style={{ background: isUploading ? '#A0AABF' : '#5A6FB8', border: 'none', borderRadius: 12, padding: '8px', cursor: isUploading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Icon name="upload" size={20} color="#FFFFFF" />
+        </button>
+
         <div style={{ flex: 1, background: 'rgba(255,255,255,0.7)', borderRadius: 12, padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Icon name="search" size={16} color="#8A8070" />
           <input value={searchText} onChange={e => setSearchText(e.target.value)} placeholder="חפש עסקה..." style={{ flex: 1, border: 'none', background: 'transparent', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, color: '#1F1A15', outline: 'none', direction: 'rtl' }} />
