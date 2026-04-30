@@ -159,14 +159,17 @@ export function Sidebar({
 }
 
 function NavButton({ item, active, onClick, index }: { item: Item; active: boolean; onClick: () => void; index: number }) {
+  const [hovered, setHovered] = React.useState(false)
+
   return (
     <motion.button
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       aria-current={active ? 'page' : undefined}
       initial={{ opacity: 0, x: 8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.08 + index * 0.04, duration: 0.22 }}
-      whileHover={!active ? { background: 'rgba(255,255,255,0.6)', x: -2 } : undefined}
       whileTap={{ scale: 0.97 }}
       style={{
         position: 'relative',
@@ -177,7 +180,9 @@ function NavButton({ item, active, onClick, index }: { item: Item; active: boole
         borderRadius: 10,
         border: 'none',
         cursor: 'pointer',
-        background: active ? '#FFFFFF' : 'transparent',
+        background: active ? '#FFFFFF' : hovered ? 'rgba(255,255,255,0.6)' : 'transparent',
+        transform: hovered && !active ? 'translateX(-2px)' : 'none',
+        transition: 'background 0.15s ease, transform 0.15s ease',
         color: active ? '#1F1A15' : '#4A4237',
         fontFamily: "'Rubik', system-ui, sans-serif",
         fontSize: 14,
