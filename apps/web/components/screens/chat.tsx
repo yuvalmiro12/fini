@@ -541,7 +541,14 @@ export function ChatMain({ nav, transactions, userName = 'נועה' }: ScreenPro
     setIsTyping(true)
     
     try {
-      const aiResponse = await ping({ message: text })
+      const historyForPing = messages
+        .filter(m => m.type === 'text' && m.text)
+        .map(m => ({
+          role: (m.role === 'fini' ? 'assistant' : 'user') as "assistant" | "user",
+          content: m.text!
+        }))
+
+      const aiResponse = await ping({ message: text, history: historyForPing })
       const aiMsg: ChatMessage = { id: `ai${Date.now()}`, role: 'fini', type: 'text', text: aiResponse }
       setMessages(prev => [...prev, aiMsg])
     } catch (e) {

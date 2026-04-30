@@ -1,6 +1,10 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useAuth, useUser, UserButton } from '@clerk/nextjs'
+import { useMutation, useQuery } from 'convex/react'
+import { api } from '../convex/_generated/api'
+import type { Id } from '../convex/_generated/dataModel'
 import { ObWelcome, ObGoal, ObIncome, ObPlan, ObTrial } from '../components/screens/onboarding'
 import { ChatMain } from '../components/screens/chat'
 import { InsightsMain, SavingsGoal } from '../components/screens/insights'
@@ -20,6 +24,12 @@ export type Screen =
   | 'couples' | 'settings' | 'notifications'
 
 export default function Page() {
+  const { isLoaded, isSignedIn } = useAuth()
+  const { user } = useUser()
+  const getOrCreate = useMutation(api.users.getOrCreate)
+  const me = useQuery(api.users.getMe)
+
+  const [convexUserId, setConvexUserId] = useState<Id<'users'> | null>(null)
   const [screen, setScreen] = useState<Screen>('obWelcome')
   const [prevScreen, setPrevScreen] = useState<Screen>('data')
   const [transactions, setTransactions] = useState<Transaction[]>(TRANSACTIONS)
@@ -27,10 +37,23 @@ export default function Page() {
   const [savingsGoal, setSavingsGoal] = useState<SavingsGoalType>(SAVINGS_GOAL)
   const [plan, setPlan] = useState<'free' | 'pro' | 'proplus'>('free')
   const [pendingPlan, setPendingPlan] = useState<'free' | 'pro' | 'proplus'>('pro')
-  const [userName, setUserName] = useState('נועה')
+  const [userName, setUserName] = useState('משתמש')
   const [hydrated, setHydrated] = useState(false)
   const [toast, setToast] = useState<ToastData | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Sync Clerk user → Convex on first load
+  useEffect(() => {
+    if (isSignedIn && !convexUserId) {
+      getOrCreate().then(id => setConvexUserId(id)).catch(console.error)
+    }
+  }, [isSignedIn, convexUserId, getOrCreate])
+
+  // Sync display name from Clerk
+  useEffect(() => {
+    if (user?.firstName) setUserName(user.firstName)
+    else if (me?.name) setUserName(me.name)
+  }, [user, me])
 
   const showToast = (message: string, type: ToastType = 'success') => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
@@ -141,7 +164,7 @@ export default function Page() {
     setTransactions(TRANSACTIONS)
     setSavingsGoal(SAVINGS_GOAL)
     setPlan('free')
-    setUserName('נועה')
+    setUserName('משתמש')
     setScreen('obWelcome')
     showToast('האפליקציה אופסה', 'info')
   }
@@ -191,6 +214,59 @@ export default function Page() {
   // (centered) layout since onboarded state gates the desktop flow anyway.
   // See DESKTOP_REDESIGN.md + globals.css for breakpoint rules.
   const isOnboarding = ['obWelcome', 'obGoal', 'obIncome', 'obPlan', 'obTrial'].includes(screen)
+
+  // Auth loading state — wait for Clerk to initialise
+  if (!isLoaded) {
+    return (
+      <div style={{
+        minHeight: '100dvh',
+        background: 'linear-gradient(135deg, #FDDDE8 0%, #FFF4F8 100%)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center'
+      }}>
+        <div style={{ fontSize: 32, animation: 'spin 1s linear infinite' }}>🐱</div>
+      </div>
+    )
+  }
+
+  // Not signed in — show inline auth prompt
+  if (!isSignedIn) {
+    return (
+      <div style={{
+        minHeight: '100dvh',
+        background: 'linear-gradient(135deg, #FDDDE8 0%, #FFF4F8 100%)',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: 24, direction: 'rtl', gap: 24
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: '50%',
+            background: 'linear-gradient(135deg, #C85A8A, #E8A0C0)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px',
+            boxShadow: '0 8px 24px rgba(200,90,138,0.3)',
+            fontSize: 32,
+          }}>🐱</div>
+          <h1 style={{ fontFamily: "'Rubik',sans-serif", fontSize: 32, fontWeight: 700, color: '#1F1A15', margin: '0 0 8px' }}>פיני</h1>
+          <p style={{ fontFamily: "'Rubik',sans-serif", fontSize: 15, color: '#8A8070', margin: 0 }}>שאל את הכסף שלך כמו חבר</p>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 320 }}>
+          <a href="/sign-in" style={{
+            display: 'block', textAlign: 'center', padding: '14px 0',
+            background: '#C85A8A', color: '#fff', borderRadius: 14,
+            fontFamily: "'Rubik',sans-serif", fontSize: 16, fontWeight: 600,
+            textDecoration: 'none', boxShadow: '0 4px 16px rgba(200,90,138,0.35)'
+          }}>התחבר</a>
+          <a href="/sign-up" style={{
+            display: 'block', textAlign: 'center', padding: '14px 0',
+            background: 'rgba(255,255,255,0.8)', color: '#C85A8A', borderRadius: 14,
+            fontFamily: "'Rubik',sans-serif", fontSize: 16, fontWeight: 600,
+            textDecoration: 'none', border: '1.5px solid rgba(200,90,138,0.3)'
+          }}>הרשמה חינם — 7 ימי ניסיון 🎉</a>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>

@@ -8,13 +8,15 @@
     "start": "next start"
   },
   "dependencies": {
+    "@clerk/nextjs": "^5.7.6",
+    "@fini/convex-shared": "workspace:*",
+    "@fini/llm": "workspace:*",
+    "convex": "^1.11.0",
+    "framer-motion": "^11.2.0",
     "next": "14.2.3",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "framer-motion": "^11.2.0",
-    "convex": "^1.11.0",
-    "@fini/convex-shared": "workspace:*",
-    "@fini/llm": "workspace:*"
+    "svix": "^1.92.2"
   },
   "devDependencies": {
     "@types/node": "^20",
