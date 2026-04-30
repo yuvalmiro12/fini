@@ -20,11 +20,11 @@ type Item = {
 }
 
 const ITEMS: Item[] = [
-  { key: 'data',     label: 'דשבורד',  icon: 'data',     accent: '#5A6FB8', matches: ['data','transactions','txDetail','addTx'], target: 'data' },
-  { key: 'tx',       label: 'עסקאות',  icon: 'receipt',  accent: '#4A4237', matches: ['transactions','txDetail','addTx'],        target: 'transactions' },
-  { key: 'insights', label: 'תובנות',  icon: 'trend',    accent: '#5B8E6F', matches: ['insights'],                               target: 'insights' },
-  { key: 'goals',    label: 'יעדים',   icon: 'target',   accent: '#C9A24D', matches: ['savingsGoal'],                            target: 'savingsGoal' },
-  { key: 'couples',  label: 'זוגות',   icon: 'users',    accent: '#C85A8A', matches: ['couples'],                                target: 'couples' },
+  { key: 'data',     label: 'דשבורד',  icon: 'data',     accent: '#5A6FB8', matches: ['data'],                             target: 'data' },
+  { key: 'tx',       label: 'עסקאות',  icon: 'receipt',  accent: '#4A4237', matches: ['transactions','txDetail','addTx'], target: 'transactions' },
+  { key: 'insights', label: 'תובנות',  icon: 'trend',    accent: '#5B8E6F', matches: ['insights'],                        target: 'insights' },
+  { key: 'goals',    label: 'יעדים',   icon: 'target',   accent: '#C9A24D', matches: ['savingsGoal'],                     target: 'savingsGoal' },
+  { key: 'couples',  label: 'זוגות',   icon: 'users',    accent: '#C85A8A', matches: ['couples'],                         target: 'couples' },
 ]
 
 const BOTTOM_ITEMS: Item[] = [
