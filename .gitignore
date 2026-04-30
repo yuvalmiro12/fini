@@ -68,7 +68,7 @@ DerivedData/
 *.moved-aside
 # Swift Package Manager
 .build/
-Packages/
+ios/Packages/
 Package.resolved
 # CocoaPods
 Pods/

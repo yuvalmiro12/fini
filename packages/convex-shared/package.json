@@ -1,0 +1,13 @@
+{
+  "name": "@fini/convex-shared",
+  "version": "1.0.0",
+  "main": "schema.ts",
+  "types": "schema.ts",
+  "exports": {
+    ".": "./schema.ts",
+    "./*": "./*"
+  },
+  "dependencies": {
+    "convex": "^1.11.0"
+  }
+}

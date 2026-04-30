@@ -1,0 +1,23 @@
+{
+  "name": "@fini/llm",
+  "version": "0.1.0",
+  "description": "Pluggable LLM provider abstraction for פיני. Mitigates vendor lock-in per STRATEGY.md §8.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "eval": "tsx evals/runner.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.15.0",
+    "typescript": "^5"
+  }
+}

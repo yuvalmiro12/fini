@@ -1,0 +1,102 @@
+[
+  {
+    "id": "q1",
+    "category": "direct_query",
+    "question": "כמה הוצאנו על אוכל בחוץ החודש?"
+  },
+  {
+    "id": "q2",
+    "category": "direct_query",
+    "question": "מה ההוצאה הכי גדולה שלנו השבוע?"
+  },
+  {
+    "id": "q3",
+    "category": "direct_query",
+    "question": "כמה נשאר לנו עד סוף החודש לפי הקצב הנוכחי?"
+  },
+  {
+    "id": "q4",
+    "category": "direct_query",
+    "question": "כמה הוצאנו על דלק מתחילת השנה?"
+  },
+  {
+    "id": "q5",
+    "category": "direct_query",
+    "question": "מה הממוצע החודשי שלנו על סופר ב־3 חודשים אחרונים?"
+  },
+  {
+    "id": "q6",
+    "category": "comparison",
+    "question": "הוצאנו החודש יותר או פחות על בילויים לעומת חודש שעבר?"
+  },
+  {
+    "id": "q7",
+    "category": "comparison",
+    "question": "איפה הוצאנו יותר השנה בלי לשים לב?"
+  },
+  {
+    "id": "q8",
+    "category": "comparison",
+    "question": "מה השתנה בהרגלי הקנייה שלנו מאז ינואר?"
+  },
+  {
+    "id": "q9",
+    "category": "comparison",
+    "question": "הקטגוריה שגדלה הכי הרבה ב־3 חודשים אחרונים?"
+  },
+  {
+    "id": "q10",
+    "category": "comparison",
+    "question": "האם אנחנו בקצב להגיע ליעד החיסכון שלנו?"
+  },
+  {
+    "id": "q11",
+    "category": "insights",
+    "question": "מה ההמלצה שלך לחסוך ₪500 בחודש בלי להרגיש?"
+  },
+  {
+    "id": "q12",
+    "category": "insights",
+    "question": "איפה אנחנו יכולים לצמצם בלי לפגוע באיכות החיים?"
+  },
+  {
+    "id": "q13",
+    "category": "insights",
+    "question": "מה אתה רואה בהוצאות שלנו שיכול להדאיג?"
+  },
+  {
+    "id": "q14",
+    "category": "insights",
+    "question": "האם חכם עכשיו להגדיל את החיסכון או להחזיר הלוואה קודם?"
+  },
+  {
+    "id": "q15",
+    "category": "couples",
+    "question": "מי מאיתנו מוציא יותר החודש?"
+  },
+  {
+    "id": "q16",
+    "category": "couples",
+    "question": "כמה כל אחד מאיתנו תרם לחיסכון של הטיול ליפן?"
+  },
+  {
+    "id": "q17",
+    "category": "couples",
+    "question": "איזו הוצאה משותפת גדלה הכי הרבה?"
+  },
+  {
+    "id": "q18",
+    "category": "couples",
+    "question": "תראה לי את החלוקה בהוצאות ביני לבין יונתן החודש."
+  },
+  {
+    "id": "q19",
+    "category": "edge_cases",
+    "question": "כמה בזבזנו אתמול סה״כ?"
+  },
+  {
+    "id": "q20",
+    "category": "edge_cases",
+    "question": "יא פיני תגיד לי כמה יש לנו פנוי החודש באמת?"
+  }
+]
