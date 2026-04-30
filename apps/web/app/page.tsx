@@ -215,8 +215,10 @@ export default function Page() {
   // See DESKTOP_REDESIGN.md + globals.css for breakpoint rules.
   const isOnboarding = ['obWelcome', 'obGoal', 'obIncome', 'obPlan', 'obTrial'].includes(screen)
 
+  const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+
   // Auth loading state — wait for Clerk to initialise
-  if (!isLoaded) {
+  if (isClerkConfigured && !isLoaded) {
     return (
       <div style={{
         minHeight: '100dvh',
@@ -229,7 +231,7 @@ export default function Page() {
   }
 
   // Not signed in — show inline auth prompt
-  if (!isSignedIn) {
+  if (isClerkConfigured && !isSignedIn) {
     return (
       <div style={{
         minHeight: '100dvh',
