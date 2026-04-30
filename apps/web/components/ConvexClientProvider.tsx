@@ -23,7 +23,10 @@ export default function ConvexClientProvider({
 }) {
   return (
     <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? ""}
+      publishableKey={
+        process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+        "pk_test_ZHVtbXkua2V5LmNsZXJrLmFjY291bnRzLmRldiQ" // Fallback dummy key for Next.js build prerendering
+      }
       appearance={{
         variables: {
           colorPrimary: "#C85A8A",
@@ -34,7 +37,7 @@ export default function ConvexClientProvider({
         },
       }}
     >
-      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+      <ConvexProviderWithClerk client={convex} useAuth={useAuth as any}>
         {children}
       </ConvexProviderWithClerk>
     </ClerkProvider>
