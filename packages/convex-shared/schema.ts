@@ -33,7 +33,25 @@ export default defineSchema({
     merchant: v.string(),
     category: v.string(),
     txDate: v.number(), // Unix timestamp
-    source: v.union(v.literal("csv"), v.literal("manual")),
+    // Issuer / data origin. "csv" kept for backward compat with existing rows.
+    source: v.union(
+      v.literal("manual"),
+      v.literal("csv"),
+      v.literal("cal"),
+      v.literal("max"),
+      v.literal("isracard"),
+      v.literal("amex"),
+      v.literal("hapoalim"),
+      v.literal("leumi"),
+      v.literal("discount"),
+      v.literal("mizrahi"),
+      v.literal("fibi"),
+      v.literal("other"),
+    ),
+    // Free-text account tag, e.g. "כרטיס אישי", "עו״ש משותף"
+    accountLabel: v.optional(v.string()),
+    // Direction of money flow — bank statements have both, CC statements are usually all expenses
+    txType: v.optional(v.union(v.literal("expense"), v.literal("income"))),
     rawRow: v.optional(v.string()),
     createdAt: v.number(),
   }),

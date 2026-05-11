@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useAction, useMutation } from "convex/react"
+import * as XLSX from 'xlsx'
 import { api } from "../../convex/_generated/api"
 import { Icon } from '../ui/icon'
 import { CatIcon } from '../ui/cat-icon'
@@ -248,29 +249,82 @@ interface TxListProps {
   onSelectTx: (id: string) => void
 }
 
+type CsvSource =
+  | 'cal' | 'max' | 'isracard' | 'amex'
+  | 'hapoalim' | 'leumi' | 'discount' | 'mizrahi' | 'fibi' | 'other'
+
+const SOURCE_OPTIONS: { value: CsvSource; label: string; kind: 'card' | 'bank' }[] = [
+  { value: 'cal', label: 'Cal (כאל)', kind: 'card' },
+  { value: 'max', label: 'Max (לאומי קארד)', kind: 'card' },
+  { value: 'isracard', label: 'ישראכרט', kind: 'card' },
+  { value: 'amex', label: 'American Express', kind: 'card' },
+  { value: 'hapoalim', label: 'בנק הפועלים', kind: 'bank' },
+  { value: 'leumi', label: 'בנק לאומי', kind: 'bank' },
+  { value: 'discount', label: 'בנק דיסקונט', kind: 'bank' },
+  { value: 'mizrahi', label: 'מזרחי טפחות', kind: 'bank' },
+  { value: 'fibi', label: 'הבינלאומי / פאג"י', kind: 'bank' },
+  { value: 'other', label: 'אחר / Generic CSV', kind: 'card' },
+]
+
+type ImportResult = { file: string; importedCount: number; skippedCount: number; error?: string }
+
 export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps) {
   const [activeFilter, setActiveFilter] = useState('הכל')
   const [searchText, setSearchText] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [showUploadPanel, setShowUploadPanel] = useState(false)
+  const [source, setSource] = useState<CsvSource>('cal')
+  const [accountLabel, setAccountLabel] = useState('')
+  const [importResults, setImportResults] = useState<ImportResult[]>([])
 
   const importCsv = useAction(api.import.importCsv)
   const getOrCreateMockUser = useMutation(api.users.getOrCreateMockUser)
 
+  const fileToCsvText = async (file: File): Promise<string> => {
+    const name = file.name.toLowerCase()
+    const isExcel = name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.xlsm')
+    if (!isExcel) return await file.text()
+    // Convert XLSX → CSV in the browser. Pick the first sheet that contains data.
+    const buf = await file.arrayBuffer()
+    const wb = XLSX.read(buf, { type: 'array', cellDates: false })
+    for (const sheetName of wb.SheetNames) {
+      const sheet = wb.Sheets[sheetName]
+      const csv = XLSX.utils.sheet_to_csv(sheet, { blankrows: false, strip: true })
+      if (csv.trim().length > 0) return csv
+    }
+    return ''
+  }
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
 
     try {
       setIsUploading(true)
-      const text = await file.text()
+      setImportResults([])
       const userId = await getOrCreateMockUser()
-      const result = await importCsv({ fileContent: text, userId })
-      alert(`מעולה! יובאו ${result.importedCount} עסקאות בהצלחה.`)
-      // Refresh logic would go here typically or handled via Convex subscriptions
-    } catch (err) {
-      console.error("Upload failed", err)
-      alert("שגיאה בהעלאת הקובץ. ודא שהשרת רץ.")
+      const results: ImportResult[] = []
+      for (const file of files) {
+        try {
+          const text = await fileToCsvText(file)
+          if (!text.trim()) {
+            results.push({ file: file.name, importedCount: 0, skippedCount: 0, error: 'הקובץ ריק או לא נקרא' })
+            continue
+          }
+          const result = await importCsv({
+            fileContent: text,
+            userId,
+            source,
+            accountLabel: accountLabel.trim() || undefined,
+          })
+          results.push({ file: file.name, importedCount: result.importedCount, skippedCount: result.skippedCount })
+        } catch (err) {
+          console.error(`Upload failed for ${file.name}`, err)
+          results.push({ file: file.name, importedCount: 0, skippedCount: 0, error: String(err) })
+        }
+      }
+      setImportResults(results)
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -304,11 +358,11 @@ export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps)
           חזור
         </button>
         
-        <input type="file" accept=".csv" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
-        <button 
-          onClick={() => fileInputRef.current?.click()} 
+        <input type="file" accept=".csv,.xlsx,.xls,.xlsm" multiple ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
+        <button
+          onClick={() => { setShowUploadPanel(v => !v); setImportResults([]) }}
           disabled={isUploading}
-          style={{ background: isUploading ? '#A0AABF' : '#5A6FB8', border: 'none', borderRadius: 12, padding: '8px', cursor: isUploading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ background: isUploading ? '#A0AABF' : showUploadPanel ? '#3D539A' : '#5A6FB8', border: 'none', borderRadius: 12, padding: '8px', cursor: isUploading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
           <Icon name="upload" size={20} color="#FFFFFF" />
         </button>
@@ -326,6 +380,75 @@ export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps)
           <Icon name="plus" size={20} color="#FFFFFF" />
         </button>
       </div>
+
+      {showUploadPanel && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22 }}
+          style={{ margin: '0 16px 12px', padding: 14, background: 'rgba(255,255,255,0.92)', borderRadius: 16, display: 'flex', flexDirection: 'column', gap: 10, boxShadow: '0 4px 14px rgba(31,26,21,0.08)' }}
+        >
+          <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, fontWeight: 700, color: '#1F1A15' }}>ייבוא קבצי CSV</div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: '#8A8070' }}>מקור</label>
+            <select
+              value={source}
+              onChange={e => setSource(e.target.value as CsvSource)}
+              style={{ padding: '8px 10px', borderRadius: 10, border: '1px solid rgba(31,26,21,0.12)', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, color: '#1F1A15', background: '#FFFFFF', direction: 'rtl' }}
+            >
+              <optgroup label="כרטיסי אשראי">
+                {SOURCE_OPTIONS.filter(o => o.kind === 'card').map(o => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="חשבונות בנק">
+                {SOURCE_OPTIONS.filter(o => o.kind === 'bank').map(o => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </optgroup>
+            </select>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: '#8A8070' }}>תיוג חשבון (אופציונלי)</label>
+            <input
+              value={accountLabel}
+              onChange={e => setAccountLabel(e.target.value)}
+              placeholder="לדוגמה: כרטיס אישי, עו״ש משותף"
+              style={{ padding: '8px 10px', borderRadius: 10, border: '1px solid rgba(31,26,21,0.12)', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, color: '#1F1A15', background: '#FFFFFF', outline: 'none', direction: 'rtl' }}
+            />
+          </div>
+
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            style={{ marginTop: 4, padding: '10px 12px', borderRadius: 12, border: 'none', background: isUploading ? '#A0AABF' : '#5A6FB8', color: '#FFFFFF', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, fontWeight: 600, cursor: isUploading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+          >
+            <Icon name="upload" size={16} color="#FFFFFF" />
+            {isUploading ? 'מייבא...' : 'בחר קבצים (אפשר מספר)'}
+          </button>
+
+          <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: '#8A8070', lineHeight: 1.5 }}>
+            תומך ב-CSV ו-Excel (XLSX). מזהה אוטומטית כותרות עברית/אנגלית, תאריכים DD/MM/YYYY, ועמודות חובה/זכות.
+            אם הייבוא מדלג על שורות — שתף דוגמת קובץ מהמנפיק כדי שנכוון את הפרסר.
+          </div>
+
+          {importResults.length > 0 && (
+            <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {importResults.map((r, i) => (
+                <div key={i} style={{ padding: '8px 10px', background: r.error ? '#FBE6E6' : '#E6F3EC', borderRadius: 10, fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, color: r.error ? '#A14040' : '#3A6B4F' }}>
+                  <div style={{ fontWeight: 600 }}>{r.file}</div>
+                  {r.error
+                    ? <div>שגיאה: {r.error}</div>
+                    : <div>יובאו {r.importedCount} עסקאות{r.skippedCount > 0 ? ` · דולגו ${r.skippedCount} שורות` : ''}</div>
+                  }
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      )}
 
       <div style={{ padding: '0 16px 12px', display: 'flex', gap: 8 }}>
         {FILTER_CHIPS.map((chip, i) => (

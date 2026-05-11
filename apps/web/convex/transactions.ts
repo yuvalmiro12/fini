@@ -1,6 +1,21 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+const sourceLiteral = v.union(
+  v.literal("manual"),
+  v.literal("csv"),
+  v.literal("cal"),
+  v.literal("max"),
+  v.literal("isracard"),
+  v.literal("amex"),
+  v.literal("hapoalim"),
+  v.literal("leumi"),
+  v.literal("discount"),
+  v.literal("mizrahi"),
+  v.literal("fibi"),
+  v.literal("other"),
+);
+
 export const insertMany = mutation({
   args: {
     userId: v.id("users"),
@@ -10,7 +25,9 @@ export const insertMany = mutation({
       merchant: v.string(),
       category: v.string(),
       txDate: v.number(),
-      source: v.union(v.literal("csv"), v.literal("manual")),
+      source: sourceLiteral,
+      accountLabel: v.optional(v.string()),
+      txType: v.optional(v.union(v.literal("expense"), v.literal("income"))),
       rawRow: v.optional(v.string())
     }))
   },

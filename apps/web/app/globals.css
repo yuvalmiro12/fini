@@ -11,7 +11,7 @@ html {
 
 body {
   font-family: 'Rubik', system-ui, sans-serif;
-  background-color: #F7F5E8;
+  background-color: oklch(98.5% 0.001 106.423);
   color: #1F1A15;
   margin: 0;
   padding: 0;
@@ -58,7 +58,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #F7F5E8;
+  background: oklch(98.5% 0.001 106.423);
   position: relative;
   overflow: hidden;
   box-shadow: 0 0 40px rgba(31, 26, 21, 0.12);

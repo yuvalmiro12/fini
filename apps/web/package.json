@@ -17,7 +17,8 @@
     "next": "14.2.3",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "svix": "^1.92.2"
+    "svix": "^1.92.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20",
