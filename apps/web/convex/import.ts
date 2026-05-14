@@ -212,7 +212,7 @@ function parseTransactions(
   accountLabel?: string,
 ): { rows: ParsedRow[]; skipped: number; detectedColumns: ColumnMap; headerRow: string[] | null } {
   const rows = parseCsv(fileContent);
-  if (rows.length === 0) return { rows: [], skipped: 0, detectedColumns: { date: -1, merchant: -1, amount: -1, debit: -1, credit: -1, currency: -1, txDate2: -1 }, headerRow: null };
+  if (rows.length === 0) return { rows: [], skipped: 0, detectedColumns: { date: -1, merchant: -1, merchantExtra: -1, beneficiary: -1, reason: -1, amount: -1, debit: -1, credit: -1, currency: -1, txDate2: -1 }, headerRow: null };
 
   const { headerIdx, cols } = findHeaderRow(rows);
   const headerRow = headerIdx >= 0 ? rows[headerIdx] : null;
