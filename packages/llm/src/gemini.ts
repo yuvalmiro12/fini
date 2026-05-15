@@ -90,6 +90,11 @@ export class GeminiProvider implements LLMProvider {
       }
     }
 
+    // Gemini requires history to start with 'user' — strip leading model turns
+    while (history.length > 0 && history[0].role === "model") {
+      history.shift();
+    }
+
     // Last message must be the most recent user turn
     const lastUserMsg = history.pop();
     const lastText =
