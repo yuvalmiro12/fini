@@ -1,7 +1,8 @@
 import type { LLMProvider } from "./provider.js";
 import { AnthropicProvider } from "./anthropic.js";
+import { GeminiProvider } from "./gemini.js";
 
-export type ProviderName = "anthropic" | "dicta" | "openai";
+export type ProviderName = "anthropic" | "gemini" | "dicta" | "openai";
 
 /**
  * Factory for LLMProvider instances. Application code should only call this —
@@ -17,6 +18,8 @@ export function getProvider(
   switch (name) {
     case "anthropic":
       return new AnthropicProvider(opts);
+    case "gemini":
+      return new GeminiProvider(opts);
     case "dicta":
       throw new Error(
         "DictaProvider not implemented yet — Phase 2 track per STRATEGY.md §8/§1.5."

@@ -14,7 +14,8 @@
     "eval": "tsx evals/runner.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.27.0"
+    "@anthropic-ai/sdk": "^0.27.0",
+    "@google/generative-ai": "^0.21.0"
   },
   "devDependencies": {
     "tsx": "^4.15.0",

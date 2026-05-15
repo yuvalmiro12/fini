@@ -8,4 +8,5 @@ export type {
   ToolDef,
 } from "./types.js";
 export { AnthropicProvider } from "./anthropic.js";
+export { GeminiProvider } from "./gemini.js";
 export { getProvider, type ProviderName } from "./registry.js";

@@ -21,7 +21,7 @@ export const ping = action({
     history: v.optional(v.array(v.any())) // Workaround because v.object is strict and we have complex union in ChatMessage
   },
   handler: async (ctx, args) => {
-    const provider = getProvider("anthropic");
+    const provider = getProvider("gemini");
     
     // Map history to our ChatMessage type
     const messages: ChatMessage[] = args.history ? (args.history as ChatMessage[]) : [];
