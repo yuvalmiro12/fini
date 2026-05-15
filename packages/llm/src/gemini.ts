@@ -21,7 +21,7 @@ export class GeminiProvider implements LLMProvider {
       );
     }
     this.client = new GoogleGenAI({ apiKey });
-    this.model = opts.model ?? "gemini-2.0-flash";
+    this.model = opts.model ?? "gemini-2.5-flash-lite";
   }
 
   async chat(params: {
