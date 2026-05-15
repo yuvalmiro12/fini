@@ -50,7 +50,7 @@ export const ping = action({
         if (toolCall.name === "get_transactions") {
           let targetUserId = args.userId;
           if (!targetUserId) {
-            targetUserId = await ctx.runQuery(api.users.getMockUser) || undefined;
+            targetUserId = await ctx.runMutation(api.users.getOrCreateMockUser);
           }
 
           let txsStr = "אין נתונים על הוצאות למשתמש זה כרגע.";

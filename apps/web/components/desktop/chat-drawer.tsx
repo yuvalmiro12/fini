@@ -1,10 +1,12 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAction, useMutation } from 'convex/react'
+import { api } from '../../convex/_generated/api'
+import type { Id } from '../../convex/_generated/dataModel'
 import { FiniAvatar } from '../ui/fini-mascot'
 import { Icon } from '../ui/icon'
 import {
-  getAiResponse,
   FBubble,
   UBubble,
   Composer,
@@ -36,6 +38,14 @@ export function ChatDrawer({
   const [isTyping, setIsTyping] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [unread, setUnread] = useState(false)
+  const [userId, setUserId] = useState<Id<'users'> | null>(null)
+
+  const ping = useAction(api.chat.ping)
+  const getOrCreateMockUser = useMutation(api.users.getOrCreateMockUser)
+
+  useEffect(() => {
+    getOrCreateMockUser().then(setUserId).catch(console.error)
+  }, [])
 
   useEffect(() => {
     if (open && scrollRef.current) {
@@ -43,17 +53,35 @@ export function ChatDrawer({
     }
   }, [messages, isTyping, open])
 
-  const handleSend = (text: string) => {
+  const handleSend = async (text: string) => {
     if (isTyping) return
     const userMsg: ChatMessage = { id: `u${Date.now()}`, role: 'user', type: 'text', text }
     setMessages((prev) => [...prev, userMsg])
     setIsTyping(true)
-    setTimeout(() => {
-      const responses = getAiResponse(text, transactions)
-      setMessages((prev) => [...prev, ...responses])
-      setIsTyping(false)
+
+    try {
+      const historyForPing = messages
+        .filter(m => m.type === 'text' && m.text)
+        .map(m => ({
+          role: (m.role === 'fini' ? 'assistant' : 'user') as 'assistant' | 'user',
+          content: m.text!,
+        }))
+
+      const aiText = await ping({
+        message: text,
+        userId: userId ?? undefined,
+        history: historyForPing,
+      })
+      const aiMsg: ChatMessage = { id: `ai${Date.now()}`, role: 'fini', type: 'text', text: aiText }
+      setMessages((prev) => [...prev, aiMsg])
       if (!open) setUnread(true)
-    }, 900 + Math.random() * 600)
+    } catch (e) {
+      console.error(e)
+      const errMsg: ChatMessage = { id: `err${Date.now()}`, role: 'fini', type: 'text', text: 'אופס, משהו השתבש. נסה שוב 😅' }
+      setMessages((prev) => [...prev, errMsg])
+    } finally {
+      setIsTyping(false)
+    }
   }
 
   return (
