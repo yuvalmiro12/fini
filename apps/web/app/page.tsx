@@ -27,6 +27,7 @@ export default function Page() {
   const { isLoaded, isSignedIn } = useAuth()
   const { user } = useUser()
   const getOrCreate = useMutation(api.users.getOrCreate)
+  const getOrCreateMockUser = useMutation(api.users.getOrCreateMockUser)
   const me = useQuery(api.users.getMe)
 
   const [convexUserId, setConvexUserId] = useState<Id<'users'> | null>(null)
@@ -42,12 +43,35 @@ export default function Page() {
   const [toast, setToast] = useState<ToastData | null>(null)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Sync Clerk user → Convex on first load
+  // Sync Clerk user → Convex on first load (or create anonymous mock user)
+  const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
   useEffect(() => {
-    if (isSignedIn && !convexUserId) {
+    if (isClerkConfigured && isSignedIn && !convexUserId) {
       getOrCreate().then(id => setConvexUserId(id)).catch(console.error)
+    } else if (!isClerkConfigured && !convexUserId) {
+      getOrCreateMockUser().then(id => setConvexUserId(id)).catch(console.error)
     }
-  }, [isSignedIn, convexUserId, getOrCreate])
+  }, [isSignedIn, convexUserId, getOrCreate, getOrCreateMockUser, isClerkConfigured])
+
+  // Live transactions from Convex — replaces localStorage as source of truth
+  const convexTxs = useQuery(
+    api.transactions.getByUser,
+    convexUserId ? { userId: convexUserId } : 'skip'
+  )
+
+  useEffect(() => {
+    if (!convexTxs) return
+    const mapped: Transaction[] = convexTxs.map(t => ({
+      id: t._id,
+      title: t.merchant,
+      category: t.category,
+      amount: t.amount,
+      type: t.txType === 'income' ? 'income' : 'expense',
+      date: new Date(t.txDate).toLocaleDateString('he-IL'),
+      time: new Date(t.txDate).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+    }))
+    setTransactions(mapped)
+  }, [convexTxs])
 
   // Sync display name from Clerk
   useEffect(() => {
@@ -214,8 +238,6 @@ export default function Page() {
   // (centered) layout since onboarded state gates the desktop flow anyway.
   // See DESKTOP_REDESIGN.md + globals.css for breakpoint rules.
   const isOnboarding = ['obWelcome', 'obGoal', 'obIncome', 'obPlan', 'obTrial'].includes(screen)
-
-  const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
   // Auth loading state — wait for Clerk to initialise
   if (isClerkConfigured && !isLoaded) {
