@@ -1,8 +1,4 @@
-import {
-  GoogleGenerativeAI,
-  type Content,
-  type FunctionDeclaration,
-} from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import type { LLMProvider } from "./provider.js";
 import type {
   ChatMessage,
@@ -14,7 +10,7 @@ import type {
 export class GeminiProvider implements LLMProvider {
   readonly name = "gemini";
   readonly model: string;
-  private client: GoogleGenerativeAI;
+  private client: GoogleGenAI;
 
   constructor(opts: { apiKey?: string; model?: string } = {}) {
     const apiKey = opts.apiKey ?? process.env.GEMINI_API_KEY;
@@ -24,8 +20,8 @@ export class GeminiProvider implements LLMProvider {
           "Add it to your Convex deployment env (dashboard)."
       );
     }
-    this.client = new GoogleGenerativeAI(apiKey);
-    this.model = opts.model ?? "gemini-1.5-flash-latest";
+    this.client = new GoogleGenAI({ apiKey });
+    this.model = opts.model ?? "gemini-2.0-flash";
   }
 
   async chat(params: {
@@ -38,46 +34,27 @@ export class GeminiProvider implements LLMProvider {
     const start = Date.now();
     const { messages, system, tools, maxTokens = 1024, temperature = 0.3 } = params;
 
-    const functionDeclarations: FunctionDeclaration[] = (tools ?? []).map((t) => ({
-      name: t.name,
-      description: t.description,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      parameters: t.inputSchema as any,
-    }));
+    // Build contents array — filter system messages, map roles
+    const nonSystem = messages.filter((m) => m.role !== "system");
 
-    const genModel = this.client.getGenerativeModel({
-      model: this.model,
-      systemInstruction: system,
-      generationConfig: {
-        maxOutputTokens: maxTokens,
-        temperature,
-      },
-      ...(functionDeclarations.length > 0
-        ? { tools: [{ functionDeclarations }] }
-        : {}),
-    });
-
-    // Convert history (all messages except the last user message) to Gemini Content[]
-    const history: Content[] = [];
-    const nonSystemMessages = messages.filter((m) => m.role !== "system");
-
-    for (const m of nonSystemMessages) {
+    const contents = nonSystem.map((m) => {
       if (m.role === "user") {
-        history.push({ role: "user", parts: [{ text: m.content }] });
-      } else if (m.role === "assistant") {
+        return { role: "user" as const, parts: [{ text: m.content }] };
+      }
+      if (m.role === "assistant") {
         if (m.toolCalls && m.toolCalls.length > 0) {
-          history.push({
-            role: "model",
+          return {
+            role: "model" as const,
             parts: m.toolCalls.map((tc) => ({
               functionCall: { name: tc.name, args: tc.input },
             })),
-          });
-        } else {
-          history.push({ role: "model", parts: [{ text: m.content }] });
+          };
         }
-      } else if (m.role === "tool") {
-        history.push({
-          role: "user",
+        return { role: "model" as const, parts: [{ text: m.content }] };
+      }
+      if (m.role === "tool") {
+        return {
+          role: "user" as const,
           parts: [
             {
               functionResponse: {
@@ -86,48 +63,55 @@ export class GeminiProvider implements LLMProvider {
               },
             },
           ],
-        });
+        };
       }
+      return { role: "user" as const, parts: [{ text: m.content }] };
+    });
+
+    // Gemini requires contents to start with 'user'
+    while (contents.length > 0 && contents[0].role === "model") {
+      contents.shift();
     }
 
-    // Gemini requires history to start with 'user' — strip leading model turns
-    while (history.length > 0 && history[0].role === "model") {
-      history.shift();
-    }
+    const functionDeclarations = (tools ?? []).map((t) => ({
+      name: t.name,
+      description: t.description,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      parameters: t.inputSchema as any,
+    }));
 
-    // Last message must be the most recent user turn
-    const lastUserMsg = history.pop();
-    const lastText =
-      lastUserMsg?.parts[0] && "text" in lastUserMsg.parts[0]
-        ? (lastUserMsg.parts[0].text as string)
-        : "";
-
-    const chat = genModel.startChat({ history });
-    const result = await chat.sendMessage(lastText);
-    const responseData = result.response;
+    const response = await this.client.models.generateContent({
+      model: this.model,
+      contents,
+      config: {
+        systemInstruction: system,
+        maxOutputTokens: maxTokens,
+        temperature,
+        ...(functionDeclarations.length > 0
+          ? { tools: [{ functionDeclarations }] }
+          : {}),
+      },
+    });
 
     const latencyMs = Date.now() - start;
 
     const textParts: string[] = [];
     const toolCalls: ToolCall[] = [];
 
-    for (const candidate of responseData.candidates ?? []) {
-      for (const part of candidate.content.parts) {
-        if ("text" in part && part.text) {
-          textParts.push(part.text);
-        } else if ("functionCall" in part && part.functionCall) {
-          toolCalls.push({
-            id: `${part.functionCall.name}-${Date.now()}`,
-            name: part.functionCall.name,
-            input: part.functionCall.args as Record<string, unknown>,
-          });
-        }
+    for (const part of response.candidates?.[0]?.content?.parts ?? []) {
+      if (part.text) {
+        textParts.push(part.text);
+      } else if (part.functionCall) {
+        toolCalls.push({
+          id: `${part.functionCall.name}-${Date.now()}`,
+          name: part.functionCall.name ?? "unknown",
+          input: (part.functionCall.args ?? {}) as Record<string, unknown>,
+        });
       }
     }
 
-    const usage = responseData.usageMetadata;
-    const inputTokens = usage?.promptTokenCount ?? 0;
-    const outputTokens = usage?.candidatesTokenCount ?? 0;
+    const inputTokens = response.usageMetadata?.promptTokenCount ?? 0;
+    const outputTokens = response.usageMetadata?.candidatesTokenCount ?? 0;
 
     return {
       content: textParts.join("\n"),
