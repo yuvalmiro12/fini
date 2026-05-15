@@ -1,10 +1,29 @@
 'use client'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import * as XLSX from 'xlsx'
+import { useAction, useMutation } from 'convex/react'
+import { api } from '../../convex/_generated/api'
 import { Icon } from '../ui/icon'
 import { CatIcon } from '../ui/cat-icon'
 import { CATS } from '../../lib/cats'
 import type { Transaction } from '../../lib/seed'
+
+type CsvSource = 'cal' | 'max' | 'isracard' | 'amex' | 'hapoalim' | 'leumi' | 'discount' | 'mizrahi' | 'fibi' | 'other'
+type ImportResult = { file: string; importedCount: number; skippedCount: number; error?: string }
+
+const SOURCE_OPTIONS: { value: CsvSource; label: string; kind: 'card' | 'bank' }[] = [
+  { value: 'cal', label: 'Cal (כאל)', kind: 'card' },
+  { value: 'max', label: 'Max (לאומי קארד)', kind: 'card' },
+  { value: 'isracard', label: 'ישראכרט', kind: 'card' },
+  { value: 'amex', label: 'American Express', kind: 'card' },
+  { value: 'hapoalim', label: 'בנק הפועלים', kind: 'bank' },
+  { value: 'leumi', label: 'בנק לאומי', kind: 'bank' },
+  { value: 'discount', label: 'בנק דיסקונט', kind: 'bank' },
+  { value: 'mizrahi', label: 'מזרחי טפחות', kind: 'bank' },
+  { value: 'fibi', label: 'הבינלאומי / פאג"י', kind: 'bank' },
+  { value: 'other', label: 'אחר / Generic CSV', kind: 'card' },
+]
 
 /**
  * TransactionsDesktop — real finance-app transactions table.
@@ -29,6 +48,54 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
   const [filter, setFilter] = useState<'all' | 'expense' | 'income' | 'flagged'>('all')
   const [search, setSearch] = useState('')
   const [catFilter, setCatFilter] = useState<string | null>(null)
+  const [showUploadPanel, setShowUploadPanel] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [source, setSource] = useState<CsvSource>('cal')
+  const [accountLabel, setAccountLabel] = useState('')
+  const [importResults, setImportResults] = useState<ImportResult[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const importCsv = useAction(api.import.importCsv)
+  const getOrCreateMockUser = useMutation(api.users.getOrCreateMockUser)
+
+  const fileToCsvText = async (file: File): Promise<string> => {
+    const name = file.name.toLowerCase()
+    const isExcel = name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.xlsm')
+    if (!isExcel) return await file.text()
+    const buf = await file.arrayBuffer()
+    const wb = XLSX.read(buf, { type: 'array', cellDates: false })
+    for (const sheetName of wb.SheetNames) {
+      const sheet = wb.Sheets[sheetName]
+      const csv = XLSX.utils.sheet_to_csv(sheet, { blankrows: false, strip: true })
+      if (csv.trim().length > 0) return csv
+    }
+    return ''
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+    try {
+      setIsUploading(true)
+      setImportResults([])
+      const userId = await getOrCreateMockUser()
+      const results: ImportResult[] = []
+      for (const file of files) {
+        try {
+          const text = await fileToCsvText(file)
+          if (!text.trim()) { results.push({ file: file.name, importedCount: 0, skippedCount: 0, error: 'הקובץ ריק או לא נקרא' }); continue }
+          const result = await importCsv({ fileContent: text, userId, source, accountLabel: accountLabel.trim() || undefined })
+          results.push({ file: file.name, importedCount: result.importedCount, skippedCount: result.skippedCount })
+        } catch (err) {
+          results.push({ file: file.name, importedCount: 0, skippedCount: 0, error: String(err) })
+        }
+      }
+      setImportResults(results)
+    } finally {
+      setIsUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
 
   const filtered = useMemo(() => {
     return transactions.filter((tx) => {
@@ -248,7 +315,56 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
               </button>
             )}
           </div>
+
+          <input type="file" accept=".csv,.xlsx,.xls,.xlsm" multiple ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
+          <button
+            onClick={() => { setShowUploadPanel(v => !v); setImportResults([]) }}
+            disabled={isUploading}
+            style={{ background: isUploading ? '#A0AABF' : showUploadPanel ? '#3D539A' : '#5A6FB8', border: 'none', borderRadius: 10, padding: '9px 14px', cursor: isUploading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 7, color: '#FFFFFF', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, fontWeight: 600 }}
+          >
+            <Icon name="upload" size={16} color="#FFFFFF" />
+            ייבוא CSV / XLSX
+          </button>
         </div>
+
+        {showUploadPanel && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22 }}
+            style={{ marginBottom: 16, padding: 16, background: '#FFFFFF', borderRadius: 14, border: '1px solid rgba(31,26,21,0.06)', display: 'flex', flexDirection: 'column', gap: 12 }}
+          >
+            <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 14, fontWeight: 700, color: '#1F1A15' }}>ייבוא קבצי CSV / Excel</div>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: '#8A8070' }}>מקור</label>
+                <select value={source} onChange={e => setSource(e.target.value as CsvSource)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(31,26,21,0.12)', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, color: '#1F1A15', background: '#FFFFFF', direction: 'rtl' }}>
+                  <optgroup label="כרטיסי אשראי">{SOURCE_OPTIONS.filter(o => o.kind === 'card').map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</optgroup>
+                  <optgroup label="חשבונות בנק">{SOURCE_OPTIONS.filter(o => o.kind === 'bank').map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</optgroup>
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: '#8A8070' }}>תיוג חשבון (אופציונלי)</label>
+                <input value={accountLabel} onChange={e => setAccountLabel(e.target.value)} placeholder='לדוגמה: כרטיס אישי' style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(31,26,21,0.12)', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, color: '#1F1A15', background: '#FFFFFF', outline: 'none', direction: 'rtl', width: 200 }} />
+              </div>
+              <button onClick={() => fileInputRef.current?.click()} disabled={isUploading} style={{ padding: '9px 16px', borderRadius: 8, border: 'none', background: isUploading ? '#A0AABF' : '#5A6FB8', color: '#FFFFFF', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, fontWeight: 600, cursor: isUploading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 7 }}>
+                <Icon name="upload" size={15} color="#FFFFFF" />
+                {isUploading ? 'מייבא...' : 'בחר קבצים'}
+              </button>
+            </div>
+            <div style={{ fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 11, color: '#8A8070' }}>תומך ב-CSV ו-Excel (XLSX). מזהה אוטומטית כותרות עבריות, תאריכים DD/MM/YYYY, ועמודות חובה/זכות.</div>
+            {importResults.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {importResults.map((r, i) => (
+                  <div key={i} style={{ padding: '8px 12px', background: r.error ? '#FBE6E6' : '#E6F3EC', borderRadius: 8, fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 12, color: r.error ? '#A14040' : '#3A6B4F' }}>
+                    <span style={{ fontWeight: 600 }}>{r.file}</span>{' — '}
+                    {r.error ? `שגיאה: ${r.error}` : `יובאו ${r.importedCount} עסקאות${r.skippedCount > 0 ? ` · דולגו ${r.skippedCount}` : ''}`}
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
 
         {/* Table */}
         <div
