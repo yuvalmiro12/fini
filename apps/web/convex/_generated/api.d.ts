@@ -8,9 +8,14 @@
  * @module
  */
 
+import type * as bank from "../bank.js";
+import type * as bankConnections from "../bankConnections.js";
+import type * as categorize from "../categorize.js";
 import type * as chat from "../chat.js";
+import type * as crypto from "../crypto.js";
 import type * as http from "../http.js";
 import type * as import_ from "../import.js";
+import type * as sources from "../sources.js";
 import type * as transactions from "../transactions.js";
 import type * as users from "../users.js";
 
@@ -21,9 +26,14 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  bank: typeof bank;
+  bankConnections: typeof bankConnections;
+  categorize: typeof categorize;
   chat: typeof chat;
+  crypto: typeof crypto;
   http: typeof http;
   import: typeof import_;
+  sources: typeof sources;
   transactions: typeof transactions;
   users: typeof users;
 }>;

@@ -1,3 +1,4 @@
+"use node";
 // AES-256-GCM helpers for bank credentials at rest.
 // Imported ONLY by the Node-runtime action file (bank.ts), so `node:crypto`
 // is available. Never import this from a query/mutation (V8 runtime) file.

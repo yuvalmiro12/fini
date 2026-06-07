@@ -5,6 +5,7 @@
   "types": "schema.ts",
   "exports": {
     ".": "./schema.ts",
+    "./schema": "./schema.ts",
     "./*": "./*"
   },
   "dependencies": {

@@ -1,8 +1,7 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
-import { getProvider } from "@fini/llm";
+import { getProvider, type ChatMessage } from "@fini/llm";
 import { api } from "./_generated/api";
-import type { ChatMessage } from "@fini/llm/src/types";
 
 const SYSTEM_PROMPT = `
 אתה "פיני", יועץ כלכלי חכם וחברי של זוגות צעירים בישראל.
