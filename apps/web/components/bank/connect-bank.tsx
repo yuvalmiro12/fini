@@ -33,7 +33,7 @@ export function BankAccountsPanel({ variant = 'desktop' }: { variant?: Variant }
   const [userId, setUserId] = useState<string | null>(null)
   useEffect(() => { ensureUser().then((id) => setUserId(id as string)).catch(() => {}) }, [])
 
-  const connections = useQuery(api.bankConnections.list, userId ? { userId: userId as any } : 'skip') ?? []
+  const connections = useQuery(api.bankConnections.list, userId ? { userId } : 'skip') ?? []
 
   const [showForm, setShowForm] = useState(false)
   const [providerId, setProviderId] = useState('leumi')
@@ -55,7 +55,7 @@ export function BankAccountsPanel({ variant = 'desktop' }: { variant?: Variant }
     setFormError(null)
     try {
       const { connectionId } = await createConn({
-        userId: userId as any,
+        userId,
         provider: provider.id,
         label: label.trim() || undefined,
         credentials: creds,
@@ -64,7 +64,7 @@ export function BankAccountsPanel({ variant = 'desktop' }: { variant?: Variant }
       resetForm()
       // Kick off an initial sync right away.
       setBusyId(connectionId)
-      await syncConn({ userId: userId as any, connectionId: connectionId as any }).catch(() => {})
+      await syncConn({ userId, connectionId }).catch(() => {})
       setBusyId(null)
     } catch (err) {
       setFormError('שמירת החיבור נכשלה. נסה שוב.')
@@ -78,7 +78,7 @@ export function BankAccountsPanel({ variant = 'desktop' }: { variant?: Variant }
     if (!userId) return
     setBusyId(connectionId)
     try {
-      await syncConn({ userId: userId as any, connectionId: connectionId as any })
+      await syncConn({ userId, connectionId })
     } catch (err) {
       console.error('sync failed', err)
     } finally {
@@ -89,7 +89,7 @@ export function BankAccountsPanel({ variant = 'desktop' }: { variant?: Variant }
   const handleRemove = async (connectionId: string) => {
     if (!userId) return
     if (!window.confirm('להסיר את החשבון המחובר? העסקאות שכבר יובאו יישמרו.')) return
-    await removeConn({ userId: userId as any, connectionId: connectionId as any }).catch(() => {})
+    await removeConn({ userId, connectionId }).catch(() => {})
   }
 
   const pad = variant === 'mobile' ? 14 : 16
@@ -232,7 +232,7 @@ export function BankAccountsPanel({ variant = 'desktop' }: { variant?: Variant }
                 </button>
                 <button
                   onClick={() => handleRemove(conn._id)}
-                  disabled={isBusy}
+                  disabled={isBusy || !userId}
                   style={{ padding: '9px 12px', borderRadius: 10, border: '1px solid rgba(31,26,21,0.12)', background: '#FFFFFF', color: '#A14040', fontSize: 13, fontWeight: 600, cursor: isBusy ? 'default' : 'pointer', fontFamily: 'inherit' }}
                 >
                   הסר

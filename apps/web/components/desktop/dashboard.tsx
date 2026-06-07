@@ -6,6 +6,7 @@ import { CatIcon } from '../ui/cat-icon'
 import { CountUp } from '../ui/count-up'
 import { CATS } from '../../lib/cats'
 import type { Transaction, SavingsGoal } from '../../lib/seed'
+import { BankAccountsPanel } from '../bank/connect-bank'
 
 /**
  * Dashboard (desktop) — real finance-app layout.
@@ -323,6 +324,22 @@ export function DashboardDesktop({ nav, transactions, savingsGoal }: Props) {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Open Banking — connected accounts */}
+      <motion.div
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.44, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          background: '#FFFFFF',
+          border: '1px solid rgba(31,26,21,0.06)',
+          borderRadius: 14,
+          padding: 20,
+          marginBottom: 18,
+        }}
+      >
+        <BankAccountsPanel variant="desktop" />
+      </motion.div>
 
       {/* Row 3 — categories + recent tx */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 16 }}>

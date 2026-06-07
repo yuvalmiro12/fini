@@ -186,6 +186,16 @@ export function DataMain({ nav, transactions, savingsGoal }: ScreenProps) {
           </motion.div>
         </div>
 
+        {/* Open Banking — connected accounts */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+          style={{ background: 'rgba(255,255,255,0.8)', borderRadius: 18, padding: '16px', marginBottom: 14 }}
+        >
+          <BankAccountsPanel variant="mobile" />
+        </motion.div>
+
         {/* Category breakdown */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}

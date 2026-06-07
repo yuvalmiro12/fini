@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { FiniMascot, FiniAvatar } from '../ui/fini-mascot'
 import { Icon } from '../ui/icon'
+import { BankAccountsPanel } from '../bank/connect-bank'
 
 interface ScreenProps {
   nav: (screen: string) => void
@@ -137,7 +138,7 @@ export function ObWelcome({ nav }: ScreenProps) {
           </p>
         </div>
 
-        <ProgressDots total={5} current={0} />
+        <ProgressDots total={6} current={0} />
       </div>
 
       <PinkButton label="בואו נתחיל!" onClick={() => nav('obGoal')} />
@@ -206,7 +207,7 @@ export function ObGoal({ nav }: ScreenProps) {
         </div>
 
         <div style={{ marginTop: 'auto' }}>
-          <ProgressDots total={5} current={1} />
+          <ProgressDots total={6} current={1} />
         </div>
       </div>
 
@@ -321,12 +322,63 @@ export function ObIncome({ nav }: ScreenProps) {
         </div>
 
         <div style={{ marginTop: 'auto' }}>
-          <ProgressDots total={5} current={2} />
+          <ProgressDots total={6} current={2} />
         </div>
       </div>
 
       <div style={{ marginTop: 16 }}>
+        <PinkButton label="המשך" onClick={() => nav('obBank')} />
+      </div>
+    </div>
+  )
+}
+
+// ── ObConnectBank — Step 4/6: connect a bank/credit-card account ──────────
+export function ObConnectBank({ nav }: ScreenProps) {
+  return (
+    <div
+      style={{
+        flex: 1,
+        background: '#FDDDE8',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '0 24px 32px',
+        position: 'relative',
+        overflow: 'hidden',
+        direction: 'rtl',
+      }}
+    >
+      <div style={{ position: 'absolute', top: -60, right: -60, width: 250, height: 250, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 24, overflowY: 'auto' }}>
+        <FiniBubble text="בוא נחבר את חשבון הבנק או כרטיס האשראי — כך אמשוך את העסקאות אוטומטית ותחסוך הקלדה." />
+        <MeBubble text="הפרטים נשמרים מוצפנים 🔒" />
+
+        <div style={{ background: 'rgba(255,255,255,0.92)', borderRadius: 16, padding: 14, boxShadow: '0 4px 14px rgba(31,26,21,0.08)' }}>
+          <BankAccountsPanel variant="mobile" />
+        </div>
+
+        <div style={{ marginTop: 'auto' }}>
+          <ProgressDots total={6} current={3} />
+        </div>
+      </div>
+
+      <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
         <PinkButton label="המשך" onClick={() => nav('obPlan')} />
+        <button
+          onClick={() => nav('obPlan')}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            fontFamily: "'Rubik', system-ui, sans-serif",
+            fontSize: 13,
+            color: '#8A8070',
+            cursor: 'pointer',
+            padding: '8px',
+          }}
+        >
+          אחבר מאוחר יותר
+        </button>
       </div>
     </div>
   )
@@ -436,7 +488,7 @@ export function ObPlan({ nav, onSelectPlan, onPickPlan }: ScreenProps) {
         </div>
 
         <div style={{ marginTop: 'auto' }}>
-          <ProgressDots total={5} current={3} />
+          <ProgressDots total={6} current={4} />
         </div>
       </div>
 
@@ -594,7 +646,7 @@ export function ObTrial({ nav, onSelectPlan, pendingPlan }: ScreenProps) {
         </div>
 
         <div style={{ marginTop: 'auto', paddingTop: 8 }}>
-          <ProgressDots total={5} current={4} />
+          <ProgressDots total={6} current={5} />
         </div>
       </div>
 

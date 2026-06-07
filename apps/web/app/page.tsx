@@ -5,7 +5,7 @@ import { useAuth, useUser, UserButton } from '@clerk/nextjs'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../convex/_generated/api'
 import type { Id } from '../convex/_generated/dataModel'
-import { ObWelcome, ObGoal, ObIncome, ObPlan, ObTrial } from '../components/screens/onboarding'
+import { ObWelcome, ObGoal, ObIncome, ObConnectBank, ObPlan, ObTrial } from '../components/screens/onboarding'
 import { ChatMain } from '../components/screens/chat'
 import { InsightsMain, SavingsGoal } from '../components/screens/insights'
 import { DataMain, TransactionsList } from '../components/screens/data'
@@ -18,10 +18,15 @@ import { TRANSACTIONS, SAVINGS_GOAL } from '../lib/seed'
 import type { Transaction, SavingsGoal as SavingsGoalType } from '../lib/seed'
 
 export type Screen =
-  | 'obWelcome' | 'obGoal' | 'obIncome' | 'obPlan' | 'obTrial'
+  | 'obWelcome' | 'obGoal' | 'obIncome' | 'obBank' | 'obPlan' | 'obTrial'
   | 'chat' | 'insights' | 'savingsGoal' | 'data'
   | 'transactions' | 'txDetail' | 'addTx' | 'paywall'
   | 'couples' | 'settings' | 'notifications'
+
+// בינתיים — מדלגים על האונבורדינג ופותחים ישר למסך הראשי.
+// כדי להחזיר את האונבורדינג: שנה ל-false.
+const SKIP_ONBOARDING = true
+const HOME_SCREEN: Screen = 'data'
 
 export default function Page() {
   const { isLoaded, isSignedIn } = useAuth()
@@ -31,7 +36,7 @@ export default function Page() {
   const me = useQuery(api.users.getMe)
 
   const [convexUserId, setConvexUserId] = useState<Id<'users'> | null>(null)
-  const [screen, setScreen] = useState<Screen>('obWelcome')
+  const [screen, setScreen] = useState<Screen>(SKIP_ONBOARDING ? HOME_SCREEN : 'obWelcome')
   const [prevScreen, setPrevScreen] = useState<Screen>('data')
   const [transactions, setTransactions] = useState<Transaction[]>(TRANSACTIONS)
   const [selectedTxId, setSelectedTxId] = useState<string | null>(null)
@@ -93,9 +98,14 @@ export default function Page() {
 
   useEffect(() => {
     try {
-      const complete = localStorage.getItem('onboardingComplete')
       const saved = localStorage.getItem('currentScreen')
-      if (complete === 'true' && saved) setScreen(saved as Screen)
+      if (SKIP_ONBOARDING) {
+        // בינתיים — לעולם לא להציג אונבורדינג; פותחים ישר למסך הראשי
+        setScreen(saved && !saved.startsWith('ob') ? (saved as Screen) : HOME_SCREEN)
+      } else {
+        const complete = localStorage.getItem('onboardingComplete')
+        if (complete === 'true' && saved) setScreen(saved as Screen)
+      }
       const savedTxs = localStorage.getItem('transactions')
       if (savedTxs) setTransactions(JSON.parse(savedTxs))
       const savedGoal = localStorage.getItem('savingsGoal')
@@ -198,6 +208,7 @@ export default function Page() {
       case 'obWelcome': return <ObWelcome nav={nav} />
       case 'obGoal':    return <ObGoal nav={nav} />
       case 'obIncome':  return <ObIncome nav={nav} />
+      case 'obBank':    return <ObConnectBank nav={nav} />
       case 'obPlan':    return <ObPlan nav={nav} onSelectPlan={selectPlan} onPickPlan={setPendingPlan} />
       case 'obTrial':   return <ObTrial nav={nav} onSelectPlan={selectPlan} pendingPlan={pendingPlan} />
       case 'chat':      return <ChatMain nav={nav} transactions={transactions} userName={userName} />
@@ -237,7 +248,7 @@ export default function Page() {
   // MobileShell and shows DesktopShell. Onboarding always uses the mobile
   // (centered) layout since onboarded state gates the desktop flow anyway.
   // See DESKTOP_REDESIGN.md + globals.css for breakpoint rules.
-  const isOnboarding = ['obWelcome', 'obGoal', 'obIncome', 'obPlan', 'obTrial'].includes(screen)
+  const isOnboarding = ['obWelcome', 'obGoal', 'obIncome', 'obBank', 'obPlan', 'obTrial'].includes(screen)
 
   // Auth loading state — wait for Clerk to initialise
   if (isClerkConfigured && !isLoaded) {

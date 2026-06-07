@@ -80,7 +80,7 @@ function buildExternalId(provider: string, account: string, t: WorkerTxn, txDate
  */
 export const create = action({
   args: {
-    userId: v.id("users"),
+    userId: v.string(),
     provider: v.string(),
     label: v.optional(v.string()),
     credentials: v.record(v.string(), v.string()),
@@ -104,7 +104,7 @@ export const create = action({
  * worker → map + dedupe → insert. Updates the connection status throughout.
  */
 export const sync = action({
-  args: { userId: v.id("users"), connectionId: v.id("bankConnections") },
+  args: { userId: v.string(), connectionId: v.string() },
   handler: async (
     ctx,
     args,
@@ -217,7 +217,9 @@ export const sync = action({
     let skipped = 0;
     if (rows.length > 0) {
       const result = await ctx.runMutation(api.transactions.insertMany, {
-        userId: args.userId,
+        // Use the connection's stored (DB-validated) userId, never the raw
+        // string arg — guarantees insertMany gets a real Id<"users">.
+        userId: conn.userId,
         transactions: rows,
       });
       imported = result.insertedIds.length;
