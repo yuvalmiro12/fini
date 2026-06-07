@@ -47,14 +47,49 @@ export default defineSchema({
       v.literal("mizrahi"),
       v.literal("fibi"),
       v.literal("other"),
+      // Additional issuers supported by the bank-sync scraper
+      v.literal("mercantile"),
+      v.literal("otsarHahayal"),
+      v.literal("union"),
+      v.literal("beinleumi"),
+      v.literal("massad"),
+      v.literal("yahav"),
+      v.literal("beyahadBishvilha"),
+      v.literal("behatsdaa"),
+      v.literal("oneZero"),
+      v.literal("pagi"),
     ),
     // Free-text account tag, e.g. "כרטיס אישי", "עו״ש משותף"
     accountLabel: v.optional(v.string()),
     // Direction of money flow — bank statements have both, CC statements are usually all expenses
     txType: v.optional(v.union(v.literal("expense"), v.literal("income"))),
     rawRow: v.optional(v.string()),
+    // Stable cross-sync identifier for bank-sync rows — `${provider}:${accountNumber}:${identifier}`
+    // (or a hash when the issuer provides no identifier). Used to dedupe repeated syncs.
+    externalId: v.optional(v.string()),
     createdAt: v.number(),
-  }),
+  }).index("by_user_external", ["userId", "externalId"]),
+
+  // Linked bank / credit-card accounts for automated transaction sync ("Open Banking").
+  // Credentials are stored encrypted (AES-256-GCM); the plaintext never lands in the DB.
+  bankConnections: defineTable({
+    userId: v.id("users"),
+    provider: v.string(), // israeli-bank-scrapers CompanyTypes id, e.g. "leumi"
+    label: v.optional(v.string()), // display tag, e.g. "עו״ש לאומי"
+    credentialsCipher: v.string(), // base64(iv).base64(authTag).base64(ciphertext)
+    status: v.union(
+      v.literal("connected"),
+      v.literal("syncing"),
+      v.literal("error"),
+      v.literal("needs_action"), // e.g. wrong password / must change password / 2FA
+    ),
+    lastSyncAt: v.optional(v.number()),
+    lastError: v.optional(v.string()),
+    accountNumbers: v.optional(v.array(v.string())),
+    balance: v.optional(v.number()),
+    startDate: v.optional(v.number()), // earliest tx date to fetch
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
 
   savingsGoals: defineTable({
     ownerId: v.string(), // could be user ID or couple ID, string for flexibility or union

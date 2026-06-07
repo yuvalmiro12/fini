@@ -8,6 +8,7 @@ import { Icon } from '../ui/icon'
 import { CatIcon } from '../ui/cat-icon'
 import { CATS } from '../../lib/cats'
 import type { Transaction } from '../../lib/seed'
+import { BankAccountsPanel } from '../bank/connect-bank'
 
 type CsvSource = 'cal' | 'max' | 'isracard' | 'amex' | 'hapoalim' | 'leumi' | 'discount' | 'mizrahi' | 'fibi' | 'other'
 type ImportResult = { file: string; importedCount: number; skippedCount: number; error?: string }
@@ -49,6 +50,7 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
   const [search, setSearch] = useState('')
   const [catFilter, setCatFilter] = useState<string | null>(null)
   const [showUploadPanel, setShowUploadPanel] = useState(false)
+  const [showBankPanel, setShowBankPanel] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [source, setSource] = useState<CsvSource>('cal')
   const [accountLabel, setAccountLabel] = useState('')
@@ -316,6 +318,14 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
             )}
           </div>
 
+          <button
+            onClick={() => { setShowBankPanel(v => !v) }}
+            style={{ background: showBankPanel ? '#3D539A' : '#FFFFFF', border: '1px solid rgba(90,111,184,0.4)', borderRadius: 10, padding: '9px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7, color: showBankPanel ? '#FFFFFF' : '#5A6FB8', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, fontWeight: 600 }}
+          >
+            <Icon name="wallet" size={16} color={showBankPanel ? '#FFFFFF' : '#5A6FB8'} />
+            חשבונות בנק
+          </button>
+
           <input type="file" accept=".csv,.xlsx,.xls,.xlsm" multiple ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
           <button
             onClick={() => { setShowUploadPanel(v => !v); setImportResults([]) }}
@@ -326,6 +336,17 @@ export function TransactionsDesktop({ nav, transactions, onSelectTx }: Props) {
             ייבוא CSV / XLSX
           </button>
         </div>
+
+        {showBankPanel && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22 }}
+            style={{ marginBottom: 16, padding: 16, background: '#F7F5E8', borderRadius: 14, border: '1px solid rgba(31,26,21,0.06)' }}
+          >
+            <BankAccountsPanel variant="desktop" />
+          </motion.div>
+        )}
 
         {showUploadPanel && (
           <motion.div

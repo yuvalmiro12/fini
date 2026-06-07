@@ -1,25 +1,8 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
-
-const sourceLiteral = v.union(
-  v.literal("manual"),
-  v.literal("csv"),
-  v.literal("cal"),
-  v.literal("max"),
-  v.literal("isracard"),
-  v.literal("amex"),
-  v.literal("hapoalim"),
-  v.literal("leumi"),
-  v.literal("discount"),
-  v.literal("mizrahi"),
-  v.literal("fibi"),
-  v.literal("other"),
-);
-
-type SourceLiteral =
-  | "manual" | "csv" | "cal" | "max" | "isracard" | "amex"
-  | "hapoalim" | "leumi" | "discount" | "mizrahi" | "fibi" | "other";
+import { sourceLiteral, type SourceLiteral } from "./sources";
+import { guessCategory } from "./categorize";
 
 type ParsedRow = {
   amount: number;
@@ -32,17 +15,6 @@ type ParsedRow = {
   txType?: "expense" | "income";
   rawRow?: string;
 };
-
-function guessCategory(merchant: string): string {
-  const m = merchant.toLowerCase();
-  if (m.includes("פז") || m.includes("סונול") || m.includes("דלק") || m.includes("דור אלון") || m.includes("ten") || m.includes("paz")) return "תחבורה";
-  if (m.includes("שופרסל") || m.includes("רמי לוי") || m.includes("טיב טעם") || m.includes("מגה") || m.includes("סופר") || m.includes("ויקטורי") || m.includes("יוחננוף")) return "אוכל הביתה";
-  if (m.includes("חשמל") || m.includes("מים") || m.includes("ארנונה") || m.includes("הוט") || m.includes("yes") || m.includes("בזק") || m.includes("פרטנר") || m.includes("סלקום")) return "חשבונות";
-  if (m.includes("זארה") || m.includes("קסטרו") || m.includes("h&m") || m.includes("ksp") || m.includes("ikea") || m.includes("אייקאה")) return "קניות";
-  if (m.includes("וולט") || m.includes("wolt") || m.includes("מסעד") || m.includes("קפה") || m.includes("תן ביס") || m.includes("10bis") || m.includes("מקדונלד")) return "אוכל בחוץ";
-  if (m.includes("סופר-פארם") || m.includes("be") || m.includes("בית מרקחת") || m.includes("ניו פארם")) return "פארם ובריאות";
-  return "כללי";
-}
 
 // ────────────────────────────────────────────────────────────────
 // CSV parsing — handles quoted fields, commas inside quotes, BOM.

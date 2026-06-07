@@ -1,20 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-
-const sourceLiteral = v.union(
-  v.literal("manual"),
-  v.literal("csv"),
-  v.literal("cal"),
-  v.literal("max"),
-  v.literal("isracard"),
-  v.literal("amex"),
-  v.literal("hapoalim"),
-  v.literal("leumi"),
-  v.literal("discount"),
-  v.literal("mizrahi"),
-  v.literal("fibi"),
-  v.literal("other"),
-);
+import { sourceLiteral } from "./sources";
 
 export const insertMany = mutation({
   args: {
@@ -28,12 +14,26 @@ export const insertMany = mutation({
       source: sourceLiteral,
       accountLabel: v.optional(v.string()),
       txType: v.optional(v.union(v.literal("expense"), v.literal("income"))),
-      rawRow: v.optional(v.string())
+      rawRow: v.optional(v.string()),
+      externalId: v.optional(v.string()),
     }))
   },
   handler: async (ctx, args) => {
     const insertedIds = [];
+    let skipped = 0;
     for (const tx of args.transactions) {
+      // Dedupe bank-sync rows: if a row carries an externalId we've already
+      // stored for this user, skip it. CSV/manual rows have no externalId and
+      // are always inserted (matching the prior behaviour).
+      if (tx.externalId) {
+        const existing = await ctx.db
+          .query("transactions")
+          .withIndex("by_user_external", (q) =>
+            q.eq("userId", args.userId).eq("externalId", tx.externalId)
+          )
+          .first();
+        if (existing) { skipped++; continue; }
+      }
       const id = await ctx.db.insert("transactions", {
         userId: args.userId,
         createdAt: Date.now(),
@@ -41,7 +41,7 @@ export const insertMany = mutation({
       });
       insertedIds.push(id);
     }
-    return insertedIds;
+    return { insertedIds, skipped };
   }
 });
 

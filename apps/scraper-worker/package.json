@@ -1,0 +1,18 @@
+{
+  "name": "@fini/scraper-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Headless Puppeteer worker that runs israeli-bank-scrapers for Fini's Open Banking sync. Runs as a standalone Node service (NOT part of the pnpm workspace — install separately).",
+  "engines": {
+    "node": ">= 22.13.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "israeli-bank-scrapers": "^6.7.5"
+  }
+}

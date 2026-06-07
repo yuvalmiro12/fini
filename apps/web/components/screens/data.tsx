@@ -12,6 +12,7 @@ import { StatusBar } from '../ui/status-bar'
 import { CountUp } from '../ui/count-up'
 import { CATS } from '../../lib/cats'
 import type { Transaction, SavingsGoal } from '../../lib/seed'
+import { BankAccountsPanel } from '../bank/connect-bank'
 
 interface ScreenProps {
   nav: (screen: string) => void
@@ -274,6 +275,7 @@ export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [showUploadPanel, setShowUploadPanel] = useState(false)
+  const [showBankPanel, setShowBankPanel] = useState(false)
   const [source, setSource] = useState<CsvSource>('cal')
   const [accountLabel, setAccountLabel] = useState('')
   const [importResults, setImportResults] = useState<ImportResult[]>([])
@@ -367,6 +369,13 @@ export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps)
           <Icon name="upload" size={20} color="#FFFFFF" />
         </button>
 
+        <button
+          onClick={() => { setShowBankPanel(v => !v) }}
+          style={{ background: showBankPanel ? '#3D539A' : '#5A6FB8', border: 'none', borderRadius: 12, padding: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Icon name="wallet" size={20} color="#FFFFFF" />
+        </button>
+
         <div style={{ flex: 1, background: 'rgba(255,255,255,0.7)', borderRadius: 12, padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Icon name="search" size={16} color="#8A8070" />
           <input value={searchText} onChange={e => setSearchText(e.target.value)} placeholder="חפש עסקה..." style={{ flex: 1, border: 'none', background: 'transparent', fontFamily: "'Rubik', system-ui, sans-serif", fontSize: 13, color: '#1F1A15', outline: 'none', direction: 'rtl' }} />
@@ -447,6 +456,17 @@ export function TransactionsList({ nav, transactions, onSelectTx }: TxListProps)
               ))}
             </div>
           )}
+        </motion.div>
+      )}
+
+      {showBankPanel && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22 }}
+          style={{ margin: '0 16px 12px', padding: 14, background: 'rgba(255,255,255,0.92)', borderRadius: 16, boxShadow: '0 4px 14px rgba(31,26,21,0.08)' }}
+        >
+          <BankAccountsPanel variant="mobile" />
         </motion.div>
       )}
 
